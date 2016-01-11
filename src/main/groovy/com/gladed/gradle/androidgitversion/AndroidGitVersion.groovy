@@ -3,17 +3,17 @@ package com.gladed.gradle.androidgitversion
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 
-class GitVersionPlugin implements Plugin<Project> {
+class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
-        project.extensions.create("gitVersion", GitVersionExtension, project)
-        project.task('gitVersion') << {
-            println "gitVersion.name\t${project.extensions.gitVersion.name()}"
-            println "gitVersion.code\t${project.extensions.gitVersion.code()}"
+        project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
+        project.task('androidGitVersion') << {
+            println "androidGitVersion.name\t${project.extensions.androidGitVersion.name()}"
+            println "androidGitVersion.code\t${project.extensions.androidGitVersion.code()}"
         }
     }
 }
 
-class GitVersionExtension {
+class AndroidGitVersionExtension {
     /**
      * Prefix used to specify special text before the tag. Useful in projects which manage
      * multiple external version names.
@@ -33,10 +33,9 @@ class GitVersionExtension {
 
     private Project project
 
-    GitVersionExtension(Project project) {
+    AndroidGitVersionExtension(Project project) {
         this.project = project
     }
-
 
     /**
      * Return a version name of the form MAIN[.COUNT-COMMIT][-BRANCH] where:
@@ -49,16 +48,16 @@ class GitVersionExtension {
         // Collect current build info
         def commit = "git rev-parse --short HEAD".execute().text.trim()
         def branch = "git rev-parse --abbrev-ref HEAD".execute().text.trim()
-        def lastTaggedCommit = "git describe --match ${project.gitVersion.tagPrefix}[0-9]* --tags --abbrev=0".
+        def lastTaggedCommit = "git describe --match ${project.androidGitVersion.tagPrefix}[0-9]* --tags --abbrev=0".
                 execute().text.trim()
 
         // Construct version if possible
         if (!lastTaggedCommit) return "unknown"
-        def commitsSinceLastTag = ("git rev-list $lastTaggedCommit..HEAD" + (project.gitVersion.restrictDirectory ? " -- ." : "")).
+        def commitsSinceLastTag = ("git rev-list $lastTaggedCommit..HEAD" + (project.androidGitVersion.restrictDirectory ? " -- ." : "")).
                 execute().text.trim().readLines().size()
-        return gitLastTag(lastTaggedCommit, project.gitVersion.tagPrefix) +
+        return gitLastTag(lastTaggedCommit, project.androidGitVersion.tagPrefix) +
                 (commitsSinceLastTag ? ".$commitsSinceLastTag-$commit" : "") +
-                (project.gitVersion.releaseBranches.contains(branch) ? "" : "-" + branch)
+                (project.androidGitVersion.releaseBranches.contains(branch) ? "" : "-" + branch)
     }
 
     /**
@@ -66,9 +65,9 @@ class GitVersionExtension {
      * For example a tag of 1.22.333 will return 100220333
      */
     final def code() {
-        def lastTaggedCommit = "git describe --match ${project.gitVersion.tagPrefix}[0-9]* --tags --abbrev=0".
+        def lastTaggedCommit = "git describe --match ${project.androidGitVersion.tagPrefix}[0-9]* --tags --abbrev=0".
                 execute().text.trim()
-        return !lastTaggedCommit ? 0 : gitLastTag(lastTaggedCommit, project.gitVersion.tagPrefix).
+        return !lastTaggedCommit ? 0 : gitLastTag(lastTaggedCommit, project.androidGitVersion.tagPrefix).
                 split(/[^0-9]+/).findAll().
                 inject(0) { result, i -> result * 10000 + i.toInteger() };
     }
