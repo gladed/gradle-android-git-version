@@ -8,33 +8,74 @@ import org.junit.rules.TemporaryFolder
 class AndroidGitVersionTest extends GroovyTestCase {
 
     def projectFolder = new TemporaryFolder()
-    File projectDir
+
+    // These properties don't exist until touched
+    @Lazy Git git = { initGit() }()
+    @Lazy AndroidGitVersionExtension plugin = { makePlugin() }()
 
     public void testNoGitRepo() {
-        def plugin = getExtension();
         assertEquals('unknown', plugin.name())
     }
 
-    public void testNoTag() {
-        Git git = Git.init().setDirectory(projectDir).call();
-        def plugin = getExtension();
+    public void testNoCommits() {
+        git // touch to build
+        assertEquals('unknown', plugin.name())
+    }
+
+    public void testNoTags() {
+        addCommit()
         assertEquals('unknown', plugin.name())
     }
 
     public void testTag() {
-        Git git = Git.init().setDirectory(projectDir).call()
-        git.add().addFilepattern("build.gradle").call()
-        git.commit().setMessage("first").call()
-        git.tag().setName("1.0").call()
-        def plugin = getExtension();
+        addCommit()
+        addTag('1.0')
         assertEquals('1.0', plugin.name())
     }
 
-    private void execute(String command) {
-        command.execute([], projectDir)
+    public void testNonVersionTag() {
+        addCommit()
+        addTag('checkpoint-1')
+        assertEquals('unknown', plugin.name())
     }
 
-    private AndroidGitVersionExtension getExtension() {
+    public void testTagPrefix() {
+        addCommit()
+        addTag("lib-1.0");
+        plugin.tagPrefix = "lib-"
+        assertEquals('1.0', plugin.name())
+    }
+
+    public void testMultiTag() {
+        addCommit()
+        addTag("1.0")
+        addCommit()
+        addTag("1.1")
+        assertEquals('1.1', plugin.name())
+    }
+
+    public void testMultiTagOnSameCommit() {
+        addCommit()
+        addTag("1.10")
+        addTag("1.9")
+        assertEquals('1.10', plugin.name())
+    }
+
+    private Git initGit() {
+        return Git.init().setDirectory(projectFolder.root).call();
+    }
+
+    private void addCommit() {
+        new File(projectFolder.root, "build.gradle").append("// addition")
+        git.add().addFilepattern("build.gradle").call()
+        git.commit().setMessage("addition").call()
+    }
+
+    private void addTag(String tagName) {
+        git.tag().setName(tagName).call()
+    }
+
+    private AndroidGitVersionExtension makePlugin() {
         Project project = ProjectBuilder.builder()
                 .withProjectDir(projectFolder.root)
                 .build()
@@ -47,9 +88,12 @@ class AndroidGitVersionTest extends GroovyTestCase {
     @Override
     protected void setUp() throws Exception {
         projectFolder.create()
-        projectDir = projectFolder.root
         projectFolder.newFile("build.gradle")
-        System.setProperty("user.dir", projectDir.getAbsolutePath())
-        println('*** using ' + projectDir)
+//        System.setProperty("user.dir", projectFolder.root.getAbsolutePath())
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        projectFolder.delete()
     }
 }
