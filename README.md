@@ -52,6 +52,16 @@ Intermediate versions do *not* produce a new code. The code only advances when a
 
 You can configure this behavior with `multipler` and `parts` properties, but be warned that changing the version code scheme for a released Android project can cause problems if your new version code does not [increase monotonically](http://developer.android.com/tools/publishing/versioning.html).
 
+## Methods
+
+`name()` returns the current version name.
+`code()` returns the current version code.
+`flush()` flushes the internal cache of information about the git repo, in the event you have a gradle task that makes changes.
+
+# Tasks
+
+`androidGitVersion` prints the name and code, as shown above.
+
 ## Configuration Properties
 
 An `androidGitVersion` block can supply optional properties to configure this plugin's behavior, e.g.:
@@ -113,3 +123,7 @@ The default number of parts is 3.
 A base version code added to all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
 
 The default baseCode is 0.
+
+## License
+
+All code here is Copyright 2015 by Glade Diviney, and licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
