@@ -51,7 +51,7 @@ You can configure this behavior with `multipler` and `parts` properties, but be 
 
 ## Configuration Properties
 
-An `androidGitVersion` block can be supplied to configure behavior, e.g.
+An `androidGitVersion` block can supply optional properties to configure this plugin's behavior, e.g.:
 
 ```groovy
 android {
@@ -60,15 +60,17 @@ android {
         onlyIn 'my-library'
         multiplier 10000
         parts 2
+        baseCode 2000
     }
 ```
 
-### `prefix` string (default `''`)
+### prefix (string)
 Set a tag prefix to indicate that relevant version tags will start with the specified string. For example, with `prefix 'lib'`, a tags like `lib-1.5` will be found while a tag like `1.0` or `app-2.4.2` will be ignored.
 
+The default for prefix is `''` which matches all numeric version tags.
 
-### `onlyIn` string (default `''`)
-Set the `onlyIn` path to indicate a path within your project. Commits that change files in this path will count, while other commits will not. This is useful when building a versioned library from a git project containing other projects (apps and other libraries).
+### onlyIn (string)
+Set the onlyIn path to indicate a path within your project. Commits that change files in this path will count, while other commits will not. This is useful when building a versioned library from a git project containing other projects (apps and other libraries).
 
 For example, consider this directory tree:
 ```
@@ -84,13 +86,27 @@ For example, consider this directory tree:
 ```
 If a commit is tagged with `1.0.1`, and `my-app/lib/build.gradle` is configured with `onlyIn 'lib'`, then commits that change `my-app/build.gradle` or `my-app/app/src` will not affect the version name or code generated from `my-app/lib/build.gradle`.
 
-### `multiplier` int (default 1000)
+The default onlyIn path is `''`, which includes all commits that change files.
+
+### multiplier (int)
 Changes the multipler used to combine each part of the version number.
 
-For example if you want version 1.2.3 to have a version code of 100020003 (allowing for 9999 patch increments), use `multiplier 10000`.
+For example, if you want version 1.2.3 to have a version code of 100020003 (allowing for 9999 patch increments), use `multiplier 10000`.
 
-### `parts` int (default 3)
-Changes the assumed number of parts. If you know your product will only ever use two version number parts (1.2) then use `parts 2`.
+Use caution when increasing this value, as the maximum version code is 2147483647 (the maximum integer).
 
-### `baseCode` int (default 0)
+The default multiplier is 1000.
+
+### parts (int)
+Changes the assumed number of parts.
+
+For example, if you know your product will only ever use two version number parts (1.2) then use `parts 2`.
+
+Use caution when increasing this value, as the maximum version code is 2147483647 (the maximum integer).
+
+The default number of parts is 3.
+
+### baseCode (int)
 A base version code added to all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
+
+The default baseCode is 0.
