@@ -55,7 +55,9 @@ You can configure this behavior with `multipler` and `parts` properties, but be 
 ## Methods
 
 `name()` returns the current version name.
+
 `code()` returns the current version code.
+
 `flush()` flushes the internal cache of information about the git repo, in the event you have a gradle task that makes changes.
 
 # Tasks
