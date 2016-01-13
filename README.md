@@ -23,7 +23,7 @@ android {
 Use git tag to specify a base version number (see [Semantic Versioning](http://semver.org))
 ```bash
 $ git tag 1.2.3
-$ git androidGitVersion
+$ gradle --quiet androidGitVersion
 androidGitVersion.name	1.2.3
 androidGitVersion.code	1002003
 ```
