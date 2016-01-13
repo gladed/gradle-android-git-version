@@ -13,52 +13,122 @@ class AndroidGitVersionTest extends GroovyTestCase {
     @Lazy Git git = { initGit() }()
     @Lazy AndroidGitVersionExtension plugin = { makePlugin() }()
 
-    public void testNoGitRepo() {
+    void testNoGitRepo() {
         assertEquals('unknown', plugin.name())
+        assertEquals(0, plugin.code())
     }
 
-    public void testNoCommits() {
+    void testNoCommits() {
         git // touch to build
         assertEquals('unknown', plugin.name())
+        assertEquals(0, plugin.code())
     }
 
-    public void testNoTags() {
+    void testNoTags() {
         addCommit()
-        assertEquals('unknown', plugin.name())
+        assert plugin.name().startsWith('untagged-1-master-')
+        assertEquals(0, plugin.code())
     }
 
-    public void testTag() {
+    void testTag() {
         addCommit()
         addTag('1.0')
         assertEquals('1.0', plugin.name())
-    }
+   }
 
-    public void testNonVersionTag() {
+    void testNonVersionTag() {
         addCommit()
         addTag('checkpoint-1')
-        assertEquals('unknown', plugin.name())
+        assert plugin.name().startsWith('untagged-1-master-')
+        assertEquals(0, plugin.code())
     }
 
-    public void testTagPrefix() {
+    void testTagPrefix() {
         addCommit()
         addTag("lib-1.0");
-        plugin.tagPrefix = "lib-"
+        plugin.prefix = "lib-"
         assertEquals('1.0', plugin.name())
+        assertEquals(1000000, plugin.code())
     }
 
-    public void testMultiTag() {
+    void testMultiTag() {
         addCommit()
         addTag("1.0")
         addCommit()
         addTag("1.1")
         assertEquals('1.1', plugin.name())
+        assertEquals(1001000, plugin.code())
     }
 
-    public void testMultiTagOnSameCommit() {
+    void testMultiTagOnSameCommit() {
         addCommit()
         addTag("1.10")
-        addTag("1.9")
-        assertEquals('1.10', plugin.name())
+        addTag("1.7")
+        addTag("1.90")
+        addTag("1.8")
+        assertEquals('1.90', plugin.name())
+        assertEquals(1090000, plugin.code())
+    }
+
+    void testCommitsAfterTag() {
+        addCommit();
+        addTag("1.0")
+        addCommit()
+        assert plugin.name().startsWith("1.0-1-master-")
+        assertEquals(1000000, plugin.code())
+    }
+
+    void testAddDirty() {
+        addCommit();
+        addTag("1.0")
+        new File(projectFolder.root, "build.gradle").append("// addition")
+        assertEquals('1.0-dirty', plugin.name())
+        assertEquals(1000000, plugin.code())
+    }
+
+    void testAddNotDirty() {
+        addCommit();
+        addTag("1.0")
+        File otherFile = new File(projectFolder.root, "build.gradle2")
+        otherFile.createNewFile()
+        otherFile.append("// addition")
+        assertEquals('1.0', plugin.name())
+        assertEquals(1000000, plugin.code())
+    }
+
+    void testOnlyInTagOutside() {
+        // Add a tag outside the onlyIn folder
+        addCommit();
+        addTag("1.0");
+
+        // Add a commit inside the onlyIn folder
+        File subDir = new File(projectFolder.root, "sub")
+        subDir.mkdirs()
+        File subFile = new File(subDir, "file")
+        subFile.createNewFile()
+        subFile.append("// addition")
+        git.add().addFilepattern("sub/file").call();
+        git.commit().setMessage("new subfolder").call();
+
+        plugin.onlyIn = "sub"
+        assert plugin.name().startsWith("1.0-1-master-")
+    }
+
+    void testOnlyInChangeOutside() {
+        File subDir = new File(projectFolder.root, "sub")
+        subDir.mkdirs()
+        File subFile = new File(subDir, "file")
+        subFile.createNewFile()
+        subFile.append("// addition")
+        git.add().addFilepattern("sub/file").call();
+        git.commit().setMessage("new subfolder").call();
+        addTag("1.0")
+
+        // Add another commit after the tag, but outside the onlyIn subfolder
+        addCommit()
+
+        plugin.onlyIn = "sub"
+        assertEquals('1.0', plugin.name())
     }
 
     private Git initGit() {
