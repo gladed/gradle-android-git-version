@@ -24,6 +24,10 @@ repositories {
     jcenter()
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
+}
+
 version = '0.2.2'
 group = 'com.gladed.gradle.androidgitversion'
 
