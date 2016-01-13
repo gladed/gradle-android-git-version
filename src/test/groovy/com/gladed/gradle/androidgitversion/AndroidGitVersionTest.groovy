@@ -86,6 +86,12 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals(1000000, plugin.code())
     }
 
+    void testLightWeightTag() {
+        addCommit();
+        addLightweightTag("1.0")
+        assertEquals('1.0', plugin.name())
+    }
+
     void testAddNotDirty() {
         addCommit();
         addTag("1.0")
@@ -143,6 +149,10 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     private void addTag(String tagName) {
         git.tag().setName(tagName).call()
+    }
+
+    private void addLightweightTag(String tagName) {
+        git.tag().setName(tagName).setAnnotated(false).call()
     }
 
     private AndroidGitVersionExtension makePlugin() {

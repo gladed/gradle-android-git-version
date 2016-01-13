@@ -12,6 +12,7 @@ buildscript {
 
 apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'groovy'
+apply plugin: 'maven'
 
 dependencies {
     compile gradleApi()
@@ -23,7 +24,7 @@ repositories {
     jcenter()
 }
 
-version = '0.2'
+version = '0.2.1'
 group = 'com.gladed.gradle.androidgitversion'
 
 pluginBundle {

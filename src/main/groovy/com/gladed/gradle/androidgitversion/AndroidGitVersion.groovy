@@ -6,16 +6,17 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTag
 import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.treewalk.filter.TreeFilter
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.util.io.DisabledOutputStream
 import org.eclipse.jgit.diff.RawTextComparator
+import org.eclipse.jgit.util.io.DisabledOutputStream
+import org.eclipse.jgit.revwalk.RevObject
 
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
@@ -54,21 +55,7 @@ class AndroidGitVersionExtension {
 
     /** Project referenced by this plugin extension */
     private Project project
-
-    /** Number of commits since last relevant tag */
-    private int revCount
-
-    /** Prefix hash for the current commit */
-    private String commitPrefix
-
-    /** Branch name for the current commit */
-    private String branchName
-
-    /** true if there are uncommitted changes */
-    private boolean dirty
-
-    /** Most recent version seen */
-    private String lastVersion
+    private Results results
 
     AndroidGitVersionExtension(Project project) {
         this.project = project
@@ -78,17 +65,18 @@ class AndroidGitVersionExtension {
      * Return a version name based on the most recent tag and
      * intervening commits if any.
      */
-    final def name() {
-        scan()
+    final String name() {
+        if (!results) results = scan();
 
-        String name = lastVersion
+        String name = results.lastVersion
+
         if (name.equals("unknown")) return name
 
-        if (revCount > 0) {
-            name += "-$revCount-$branchName-$commitPrefix"
+        if (results.revCount > 0) {
+            name += "-${results.revCount}-${results.branchName}-${results.commitPrefix}"
         }
 
-        if (dirty) name += "-dirty"
+        if (results.dirty) name += "-dirty"
 
         return name
     }
@@ -96,21 +84,23 @@ class AndroidGitVersionExtension {
     /**
      * Return a version code corresponding to the most recent version
      */
-    final def code() {
-        scan()
+    final int code() {
+        if (!results) results = scan();
         List<String> empties = (1..parts).collect { "0" }
 
-        def versionParts = (!lastVersion ? empties : lastVersion.
+        def versionParts = (!results.lastVersion ? empties : results.lastVersion.
                 split(/[^0-9]+/) + empties)[0..2]
 
         return versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
     }
 
-    private void scan() {
-        dirty = false
-        lastVersion = "unknown"
-        commitPrefix = ""
-        branchName = ""
+    /** Flush results in case git content changed */
+    final void flush() {
+        results = null
+    }
+
+    private Results scan() {
+        Results results = new Results()
 
         Repository repo
         try {
@@ -120,39 +110,35 @@ class AndroidGitVersionExtension {
                     build()
         } catch (IllegalArgumentException e) {
             // No repo found
-            return
+            return results
         }
 
         def git = Git.wrap(repo)
         def head = repo.getRef(Constants.HEAD).getTarget()
         // No commits?
-        if (!head.getObjectId()) return
+        if (!head.getObjectId()) return results
 
-        commitPrefix = ObjectId.toString(head.getObjectId())[0..6]
-        branchName = repo.getBranch()
+        results.commitPrefix = ObjectId.toString(head.getObjectId())[0..6]
+        results.branchName = repo.getBranch()
 
         // Check to see if uncommitted files exist
-        dirty = git.status().call().hasUncommittedChanges()
+        results.dirty = git.status().call().hasUncommittedChanges()
 
-        // Calculate revCount and find lastVersion
-        Iterable<RevTag> tags = git.tagList().call().collect { ref ->
-            RevWalk walk = new RevWalk(repo)
-            RevTag tag = walk.parseTag(ref.getObjectId())
-            walk.close()
-            tag
-        }
+        // Collect known tags
+        Iterable<TagInfo> tags = getTagInfos(repo, git)
 
+        // Review commits, counting revs until a suitable tag is found.
         RevWalk revs = new RevWalk(repo)
         revs.setTreeFilter(TreeFilter.ANY_DIFF)
         revs.markStart(revs.parseCommit(head.getObjectId()))
-        revCount = 0
-        Collection<RevTag> commitTags = null
+        results.revCount = 0
+        Collection<TagInfo> commitTags = null
 
         for (RevCommit commit: revs) {
 
             def tagsHere = tags.findAll { tag ->
-                tag.getObject().getId().equals(commit) &&
-                        tag.getTagName().matches('^' + prefix + '[0-9].*$')
+                tag.getObjectId().equals(commit) &&
+                        tag.getName().matches('^' + prefix + '[0-9].*$')
             }
 
             if (tagsHere) {
@@ -162,25 +148,47 @@ class AndroidGitVersionExtension {
 
             // Does this commit contain a change to a file in onlyIn?
             if (containsRelevantChange(repo, commit)) {
-                revCount++
+                results.revCount++
             }
         }
 
         // No decent tags?
         if (!commitTags) {
-            lastVersion = "untagged"
-            return
+            results.lastVersion = "untagged"
+            return results
         }
 
         // Convert tags to names w/o prefixes and get the last one numerically
-        lastVersion = commitTags.
-                collect { it.getTagName() - prefix }.
+        results.lastVersion = commitTags.
+                collect { it.getName() - prefix }.
                 sort(false) { a, b ->
                     [a,b]*.tokenize('.')*.collect { it as int }.with { u, v ->
                         [u,v].transpose().findResult{ x,y-> x<=>y ?: null } ?: u.size() <=> v.size()
                     }
                 }.
                 last()
+
+        results
+    }
+
+    /** Collect all available tag information */
+    private List<TagInfo> getTagInfos(Repository repo, Git git) {
+        RevWalk walk = new RevWalk(repo)
+        List<TagInfo> infos = git.tagList().call().findResults { ref ->
+            RevObject obj = walk.parseAny(ref.getObjectId())
+            TagInfo tag = null
+            if (obj instanceof RevTag) {
+                // Annotated tag
+                tag = new TagInfo(obj.getObject().getId(), obj.getTagName())
+            } else if (obj instanceof RevCommit) {
+                // Lightweight tag
+                tag = new TagInfo(obj.getId(),
+                        Repository.shortenRefName(ref.getName()))
+            }
+            tag
+        }
+        walk.close()
+        return infos
     }
 
     /** Return true if this commit contains a change to the onlyIn path */
@@ -208,5 +216,37 @@ class AndroidGitVersionExtension {
             }
         }
         return false
+    }
+
+    class TagInfo {
+        ObjectId objectId
+        String name
+        TagInfo(ObjectId objectId, String name) {
+            this.objectId = objectId
+            this.name = name
+        }
+        ObjectId getObjectId() {
+            objectId
+        }
+        String getName() {
+            name
+        }
+    }
+
+    class Results {
+        /** Number of commits since last relevant tag */
+        int revCount = 0
+
+        /** Prefix hash for the current commit */
+        String commitPrefix
+
+        /** Branch name for the current commit */
+        String branchName
+
+        /** true if there are uncommitted changes */
+        boolean dirty = false
+
+        /** Most recent version seen */
+        String lastVersion = 'unknown'
     }
 }
