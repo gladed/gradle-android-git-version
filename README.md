@@ -1,7 +1,7 @@
 # gradle-android-git-version
-A gradle plugin to calculate Android-friendly version names and codes from git tags.
+[![Build Status](https://api.travis-ci.org/gladed/gradle-android-git-version.svg)](https://travis-ci.org/gladed/gradle-android-git-version)
 
-If you are tired of manually updating your Android build files for each release, or generating builds that you can't trace back to code, then this plugin is for you!
+A gradle plugin to calculate Android-friendly version names and codes from git tags. If you are tired of manually updating your Android build files for each release, or generating builds that you can't trace back to code, then this plugin is for you!
 
 ## Usage
 
