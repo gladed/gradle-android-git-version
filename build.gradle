@@ -34,7 +34,7 @@ group = 'com.gladed.gradle.androidgitversion'
 pluginBundle {
     website = 'https://github.com/gladed/gradle-android-git-version'
     vcsUrl = 'https://github.com/gladed/gradle-android-git-version'
-    description = 'A gradle plugin to calculate Android-friendly version names and codes from git tags'
+    description = 'Automatically extract Android-friendly version names and codes from git tags'
     tags = [ 'android', 'git', 'version' ]
     plugins {
         androidGitVersion {
