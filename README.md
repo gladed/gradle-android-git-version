@@ -39,7 +39,7 @@ For builds from commits that are not explicitly tagged, `name()` will return a b
 The components in the example above are as follows:
 
 | 1.2.3 | -2 | -master | -93411ff | -dirty |
-| - | - | - | - | - |
+| --- | --- | --- | --- | --- |
 | Most recent tag | Number of commits since tag | Branch name | Commit prefix | Present only there are uncommitted changes |
 
 ## Version Codes
