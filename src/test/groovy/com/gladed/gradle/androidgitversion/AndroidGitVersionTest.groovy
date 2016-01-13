@@ -145,6 +145,12 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assert plugin.name().startsWith("1.0-1-release_1.x-")
     }
 
+    void testBaseCode() {
+        addCommit()
+        addTag("1.1")
+        plugin.baseCode = 55555
+        assertEquals(1056555, plugin.code())
+    }
     private Git initGit() {
         return Git.init().setDirectory(projectFolder.root).call();
     }

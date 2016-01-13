@@ -53,6 +53,11 @@ class AndroidGitVersionExtension {
      */
     int parts = 3
 
+    /**
+     * Base code, added to all generated version codes. Defaults to 0
+     */
+    int baseCode = 0
+
     /** Project referenced by this plugin extension */
     private Project project
     private Results results
@@ -91,7 +96,7 @@ class AndroidGitVersionExtension {
         def versionParts = (!results.lastVersion ? empties : results.lastVersion.
                 split(/[^0-9]+/) + empties)[0..2]
 
-        return versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
+        return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
     }
 
     /** Flush results in case git content changed */

@@ -6,7 +6,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id "com.gladed.androidgitversion" version "0.2.1"
+    id "com.gladed.androidgitversion" version "0.2.2"
 }
 ```
 
@@ -91,3 +91,6 @@ For example if you want version 1.2.3 to have a version code of 100020003 (allow
 
 ### `parts` int (default 3)
 Changes the assumed number of parts. If you know your product will only ever use two version number parts (1.2) then use `parts 2`.
+
+### `baseCode` int (default 0)
+A base version code added to all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
