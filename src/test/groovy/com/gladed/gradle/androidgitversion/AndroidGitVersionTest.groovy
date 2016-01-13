@@ -137,6 +137,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals('1.0', plugin.name())
     }
 
+    void testWeirdBranchName() {
+        addCommit()
+        addTag("1.0")
+        addBranch("release/1.x")
+        addCommit()
+        assert plugin.name().startsWith("1.0-1-release_1.x-")
+    }
+
     private Git initGit() {
         return Git.init().setDirectory(projectFolder.root).call();
     }
@@ -153,6 +161,10 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     private void addLightweightTag(String tagName) {
         git.tag().setName(tagName).setAnnotated(false).call()
+    }
+
+    private void addBranch(String branchName) {
+        git.checkout().setCreateBranch(true).setName(branchName).call()
     }
 
     private AndroidGitVersionExtension makePlugin() {

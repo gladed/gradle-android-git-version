@@ -119,7 +119,7 @@ class AndroidGitVersionExtension {
         if (!head.getObjectId()) return results
 
         results.commitPrefix = ObjectId.toString(head.getObjectId())[0..6]
-        results.branchName = repo.getBranch()
+        results.branchName = repo.getBranch().replaceAll("[^a-zA-Z0-9.-]", "_")
 
         // Check to see if uncommitted files exist
         results.dirty = git.status().call().hasUncommittedChanges()
