@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.2.4'
+    id 'com.gladed.androidgitversion' version '0.2.5'
 }
 ```
 
@@ -29,6 +29,8 @@ $ gradle --quiet androidGitVersion
 androidGitVersion.name	1.2.3
 androidGitVersion.code	1002003
 ```
+
+Any suffix after the version, such as `-release4` in `1.2.3-release4` is removed and ignored for name and code generation purposes.
 
 ## Intermediate Versions
 
@@ -63,6 +65,10 @@ You can configure this behavior with `multipler` and `parts` properties, but be 
 # Tasks
 
 `androidGitVersion` prints the name and code, as shown above.
+
+`androidGitVersionName` prints only the name.
+
+`androidGitVersionCode` prints only the code.
 
 ## Configuration Properties
 

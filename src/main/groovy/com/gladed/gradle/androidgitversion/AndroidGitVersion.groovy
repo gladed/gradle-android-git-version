@@ -11,7 +11,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTag
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.TreeWalk
-import org.eclipse.jgit.treewalk.filter.TreeFilter
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.RawTextComparator
@@ -24,6 +23,12 @@ class AndroidGitVersion implements Plugin<Project> {
         project.task('androidGitVersion') << {
             println "androidGitVersion.name\t${project.extensions.androidGitVersion.name()}"
             println "androidGitVersion.code\t${project.extensions.androidGitVersion.code()}"
+        }
+        project.task('androidGitVersionName') << {
+            println project.extensions.androidGitVersion.name()
+        }
+        project.task('androidGitVersionCode') << {
+            println project.extensions.androidGitVersion.code()
         }
     }
 }
@@ -103,7 +108,8 @@ class AndroidGitVersionExtension {
         List<String> empties = (1..parts).collect { "0" }
 
         def versionParts = (!results.lastVersion ? empties : results.lastVersion.
-                split(/[^0-9]+/) + empties)[0..2]
+                split(/[^0-9]+/) + empties).
+                collect{ it as int }[0..2]
 
         return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
     }
@@ -168,7 +174,7 @@ class AndroidGitVersionExtension {
 
         // Convert tags to names w/o prefixes and get the last one numerically
         results.lastVersion = commitTags.
-                collect { it.getName() - prefix }.
+                collect { (it.getName() - prefix).replaceAll('[^0-9.]+$','') }.
                 sort(false) { a, b ->
                     [a,b]*.tokenize('.')*.collect { it as int }.with { u, v ->
                         [u,v].transpose().findResult{ x,y-> x<=>y ?: null } ?: u.size() <=> v.size()
