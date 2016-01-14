@@ -143,7 +143,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.0")
         addBranch("release/1.x")
         addCommit()
-        assert plugin.name().startsWith("1.0-1-release_1.x-")
+        assert plugin.name().startsWith("1.0-1-")
+        assert plugin.name().endsWith('-release_1.x')
     }
 
     void testHideBranch() {
@@ -151,7 +152,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.0")
         addBranch("release/1.x")
         addCommit()
-        assert plugin.name().startsWith("1.0-1-release_1.x-")
+        assert plugin.name().startsWith("1.0-1-")
+        assert plugin.name().endsWith('-release_1.x')
     }
 
     void testBaseCode() {

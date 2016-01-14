@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.2.5'
+    id 'com.gladed.androidgitversion' version '0.2.6'
 }
 ```
 
@@ -36,13 +36,13 @@ Any suffix after the version, such as `-release4` in `1.2.3-release4` is removed
 
 For builds from commits that are not explicitly tagged, `name()` will return a build of this form:
 
-`1.2.3-2-fix_issue5-93411ff-dirty`
+`1.2.3-2-93411ff-fix_issue5-dirty`
 
 The components in the example above are as follows:
 
-| 1.2.3 | -2 | -fix_issue5 | -93411ff | -dirty |
+| 1.2.3 | -2 | -93411ff | -fix_issue5 | -dirty |
 | --- | --- | --- | --- | --- |
-| Most recent tag | Number of commits since tag | Branch name, if branch is not listed in `hideBranches` | Commit prefix | Present only there are uncommitted changes |
+| Most recent tag | Number of commits since tag | Commit prefix | Branch name, if branch is not listed in `hideBranches` | Present only there are uncommitted changes |
 
 ## Version Codes
 
