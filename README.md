@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id "com.gladed.androidgitversion" version "0.2.3"
+    id "com.gladed.androidgitversion" version "0.2.4"
 }
 ```
 
@@ -34,13 +34,13 @@ androidGitVersion.code	1002003
 
 For builds from commits that are not explicitly tagged, `name()` will return a build of this form:
 
-`1.2.3-2-master-93411ff-dirty`
+`1.2.3-2-fix_issue5-93411ff-dirty`
 
 The components in the example above are as follows:
 
-| 1.2.3 | -2 | -master | -93411ff | -dirty |
+| 1.2.3 | -2 | -fix_issue5 | -93411ff | -dirty |
 | --- | --- | --- | --- | --- |
-| Most recent tag | Number of commits since tag | Branch name | Commit prefix | Present only there are uncommitted changes |
+| Most recent tag | Number of commits since tag | Branch name, if branch is not listed in `hideBranches` | Commit prefix | Present only there are uncommitted changes |
 
 ## Version Codes
 
@@ -76,6 +76,7 @@ android {
         multiplier 10000
         parts 2
         baseCode 2000
+        hideBranches [ 'develop' ]
     }
 ```
 
@@ -125,6 +126,12 @@ The default number of parts is 3.
 A base version code added to all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
 
 The default baseCode is 0.
+
+### hideBranches (list of strings)
+
+A list of branches which should *not* be added to builds for intermediate (non-tagged) commits. This will result in somewhat cleaner intermediate version names.
+
+The default hideBranches are `[ 'master', 'release' ]`.
 
 ## License
 

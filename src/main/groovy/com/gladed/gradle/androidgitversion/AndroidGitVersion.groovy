@@ -58,6 +58,11 @@ class AndroidGitVersionExtension {
      */
     int baseCode = 0
 
+    /**
+     * Branches that should NOT be shown even if on an untagged commit
+     */
+    List<String> hideBranches = [ "master", "release" ]
+
     /** Project referenced by this plugin extension */
     private Project project
     private Results results
@@ -78,7 +83,11 @@ class AndroidGitVersionExtension {
         if (name.equals("unknown")) return name
 
         if (results.revCount > 0) {
-            name += "-${results.revCount}-${results.branchName}-${results.commitPrefix}"
+            String branchPart = ""
+            if (!hideBranches.contains(results.branchName)) {
+                branchPart = "-" + results.branchName.replaceAll("[^a-zA-Z0-9.-]", "_")
+            }
+            name += "-${results.revCount}${branchPart}-${results.commitPrefix}"
         }
 
         if (results.dirty) name += "-dirty"
@@ -124,7 +133,7 @@ class AndroidGitVersionExtension {
         if (!head.getObjectId()) return results
 
         results.commitPrefix = ObjectId.toString(head.getObjectId())[0..6]
-        results.branchName = repo.getBranch().replaceAll("[^a-zA-Z0-9.-]", "_")
+        results.branchName = repo.getBranch()
 
         // Check to see if uncommitted files exist
         results.dirty = git.status().call().hasUncommittedChanges()

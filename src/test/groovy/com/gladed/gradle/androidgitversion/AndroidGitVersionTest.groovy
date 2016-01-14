@@ -26,7 +26,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     void testNoTags() {
         addCommit()
-        assert plugin.name().startsWith('untagged-1-master-')
+        assert plugin.name().startsWith('untagged-1-')
+        assertFalse plugin.name().contains("master") // Due to hideBranches
         assertEquals(0, plugin.code())
     }
 
@@ -39,7 +40,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
     void testNonVersionTag() {
         addCommit()
         addTag('checkpoint-1')
-        assert plugin.name().startsWith('untagged-1-master-')
+        assert plugin.name().startsWith('untagged-1-')
         assertEquals(0, plugin.code())
     }
 
@@ -74,7 +75,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit();
         addTag("1.0")
         addCommit()
-        assert plugin.name().startsWith("1.0-1-master-")
+        assert plugin.name().startsWith("1.0-1-")
         assertEquals(1000000, plugin.code())
     }
 
@@ -117,7 +118,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         git.commit().setMessage("new subfolder").call();
 
         plugin.onlyIn = "sub"
-        assert plugin.name().startsWith("1.0-1-master-")
+        assert plugin.name().startsWith("1.0-1-")
     }
 
     void testOnlyInChangeOutside() {
@@ -138,6 +139,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }
 
     void testWeirdBranchName() {
+        addCommit()
+        addTag("1.0")
+        addBranch("release/1.x")
+        addCommit()
+        assert plugin.name().startsWith("1.0-1-release_1.x-")
+    }
+
+    void testHideBranch() {
         addCommit()
         addTag("1.0")
         addBranch("release/1.x")
