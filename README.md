@@ -76,7 +76,7 @@ android {
         multiplier 10000
         parts 2
         baseCode 2000
-        hideBranches [ 'develop' ]
+        hideBranches = [ 'develop' ]
     }
 ```
 
