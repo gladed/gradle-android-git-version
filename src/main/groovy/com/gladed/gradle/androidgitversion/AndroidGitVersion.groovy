@@ -134,18 +134,12 @@ class AndroidGitVersionExtension {
 
         // Review commits, counting revs until a suitable tag is found.
         RevWalk revs = new RevWalk(repo)
-        revs.setTreeFilter(TreeFilter.ANY_DIFF)
         revs.markStart(revs.parseCommit(head.getObjectId()))
         results.revCount = 0
         Collection<TagInfo> commitTags = null
 
         for (RevCommit commit: revs) {
-
-            def tagsHere = tags.findAll { tag ->
-                tag.getObjectId().equals(commit) &&
-                        tag.getName().matches('^' + prefix + '[0-9].*$')
-            }
-
+            Collection<TagInfo> tagsHere = tags.findAll { it.getObjectId().equals(commit) }
             if (tagsHere) {
                 commitTags = tagsHere
                 break
@@ -190,7 +184,10 @@ class AndroidGitVersionExtension {
                 tag = new TagInfo(obj.getId(),
                         Repository.shortenRefName(ref.getName()))
             }
-            tag
+
+            if (tag && tag.getName().matches('^' + prefix + '[0-9].*$')) {
+                tag
+            }
         }
         walk.close()
         return infos
@@ -236,6 +233,7 @@ class AndroidGitVersionExtension {
         String getName() {
             name
         }
+        @Override String toString() { "TagInfo: " + objectId + ", name=" + name }
     }
 
     class Results {
