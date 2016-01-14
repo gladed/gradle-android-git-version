@@ -66,18 +66,17 @@ You can configure this behavior with `multipler` and `parts` properties, but be 
 
 ## Configuration Properties
 
-An `androidGitVersion` block can supply optional properties to configure this plugin's behavior, e.g.:
+An `androidGitVersion` block in your project's `build.gradle` file can supply optional properties to configure this plugin's behavior, e.g.:
 
 ```groovy
-android {
-    androidGitVersion {
-        prefix 'lib-'
-        onlyIn 'my-library'
-        multiplier 10000
-        parts 2
-        baseCode 2000
-        hideBranches = [ 'develop' ]
-    }
+androidGitVersion {
+    prefix 'lib-'
+    onlyIn 'my-library'
+    multiplier 10000
+    parts 2
+    baseCode 2000
+    hideBranches = [ 'develop' ]
+}
 ```
 
 ### prefix (string)
