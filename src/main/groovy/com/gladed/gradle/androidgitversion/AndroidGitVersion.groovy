@@ -173,7 +173,7 @@ class AndroidGitVersionExtension {
 
         // Convert tags to names w/o prefixes and get the last one numerically
         results.lastVersion = commitTags.
-                collect { (it.getName() - prefix).replaceAll('[^0-9.]+$','') }.
+                collect { (it.getName() - prefix) }.
                 sort(false) { a, b ->
                     [a,b]*.tokenize('.')*.collect { it as int }.with { u, v ->
                         [u,v].transpose().findResult{ x,y-> x<=>y ?: null } ?: u.size() <=> v.size()

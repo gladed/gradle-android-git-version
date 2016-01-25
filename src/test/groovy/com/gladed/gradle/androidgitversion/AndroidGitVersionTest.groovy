@@ -163,11 +163,11 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals(1056555, plugin.code())
     }
 
-    void testTagWithJunk() {
+    void testTagWithSuffix() {
         addCommit()
         addTag("1.1-release")
         assertEquals(1001000, plugin.code())
-        assertEquals("1.1", plugin.name())
+        assertEquals("1.1-release", plugin.name())
     }
 
     private Git initGit() {
