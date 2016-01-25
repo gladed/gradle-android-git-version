@@ -30,7 +30,7 @@ androidGitVersion.name	1.2.3
 androidGitVersion.code	1002003
 ```
 
-Any suffix after the version, such as `-release4` in `1.2.3-release4` is removed and ignored for name and code generation purposes.
+Any suffix after the version number in the tag (such as `-release4` in `1.2.3-release4`) is included in the version name, but is ignored when generating the version code.
 
 ## Intermediate Versions
 
