@@ -10,9 +10,12 @@ buildscript {
     }
 }
 
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
 
 dependencies {
     compile gradleApi()
@@ -28,7 +31,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }
 
-version = '0.2.9'
+version = '0.2.12'
 group = 'com.gladed.gradle.androidgitversion'
 
 pluginBundle {
