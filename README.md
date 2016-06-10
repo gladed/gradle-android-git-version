@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.2.7'
+    id 'com.gladed.androidgitversion' version '0.2.8'
 }
 ```
 
