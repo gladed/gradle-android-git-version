@@ -175,7 +175,7 @@ class AndroidGitVersionExtension {
         results.lastVersion = commitTags.
                 collect { (it.getName() - prefix) }.
                 sort(false) { a, b ->
-                    [a,b]*.tokenize('.')*.collect { it as int }.with { u, v ->
+                    [a,b]*.split('[^0-9]+')*.collect { it as int }.with { u, v ->
                         [u,v].transpose().findResult{ x,y-> x<=>y ?: null } ?: u.size() <=> v.size()
                     }
                 }.

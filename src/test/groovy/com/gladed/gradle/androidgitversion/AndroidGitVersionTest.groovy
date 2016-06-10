@@ -71,6 +71,13 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals(1090000, plugin.code())
     }
 
+    void testMultiTagOnSameCommit2() {
+        addCommit();
+        addTag("2.0.4-beta3");
+        addTag("2.0.5-beta2");
+        assertEquals("2.0.5-beta2", plugin.name())
+    }
+
     void testCommitsAfterTag() {
         addCommit();
         addTag("1.0")
