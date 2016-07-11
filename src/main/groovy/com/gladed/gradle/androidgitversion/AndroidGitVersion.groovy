@@ -123,10 +123,10 @@ class AndroidGitVersionExtension {
 
         Repository repo
         try {
-            repo = new FileRepositoryBuilder().
-                    readEnvironment().
-                    findGitDir(project.rootDir).
-                    build()
+            repo = new FileRepositoryBuilder()
+                    .readEnvironment()
+                    .findGitDir(project.projectDir)
+                    .build()
         } catch (IllegalArgumentException e) {
             // No repo found
             return results

@@ -1,17 +1,37 @@
 package com.gladed.gradle.androidgitversion
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Repository
+
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.rules.TemporaryFolder
 
 class AndroidGitVersionTest extends GroovyTestCase {
 
-    def projectFolder = new TemporaryFolder()
+    @Lazy TemporaryFolder projectFolder = {
+        TemporaryFolder folder = new TemporaryFolder()
+        folder.create()
+        folder.newFile("build.gradle")
+        return folder
+    }()
 
-    // These properties don't exist until touched
-    @Lazy Git git = { initGit() }()
-    @Lazy AndroidGitVersionExtension plugin = { makePlugin() }()
+    @Lazy Project project = {
+        ProjectBuilder.builder()
+                .withProjectDir(projectFolder.root)
+                .build()
+    }()
+
+    @Lazy Git git = {
+        return Git.init().setDirectory(projectFolder.root).call();
+    }()
+
+    @Lazy AndroidGitVersionExtension plugin = {
+        project.pluginManager.apply 'com.gladed.androidgitversion'
+        def extension = project.getExtensions().getByName('androidGitVersion')
+        assertTrue(extension instanceof AndroidGitVersionExtension)
+        return (AndroidGitVersionExtension) extension
+    }()
 
     void testNoGitRepo() {
         assertEquals('unknown', plugin.name())
@@ -177,8 +197,44 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals("1.1-release", plugin.name())
     }
 
-    private Git initGit() {
-        return Git.init().setDirectory(projectFolder.root).call();
+    void testSubmodule() {
+        // Set up a base repo
+        addCommit()
+        addTag("1.0")
+        assertEquals("1.0", plugin.name())
+
+        TemporaryFolder libraryFolder = new TemporaryFolder()
+        libraryFolder.create()
+        libraryFolder.newFile("build.gradle")
+
+        try {
+            // Create a library repo with its own label
+            Git libraryGit = Git.init().setDirectory(libraryFolder.root).call()
+            libraryGit.add().addFilepattern("build.gradle").call()
+            libraryGit.commit().setMessage("addition").call()
+            libraryGit.tag().setName("2.0").call()
+
+            // Add the library repo to the base repo as a submodule
+            Repository libraryRepo = git.submoduleAdd()
+                    .setPath("library")
+                    .setURI(libraryGit.getRepository().getDirectory().getCanonicalPath())
+                    .call()
+            libraryRepo.close()
+
+            // Add the submodule as a subproject to the base project
+            Project libraryProject = ProjectBuilder.builder()
+                    .withProjectDir(new File(projectFolder.root, "library"))
+                    .withParent(project)
+                    .build()
+            libraryProject.pluginManager.apply 'com.gladed.androidgitversion'
+            AndroidGitVersionExtension libraryPlugin = (AndroidGitVersionExtension) libraryProject.getExtensions().getByName('androidGitVersion')
+
+            // Make sure the subproject gets its version number from the library repo
+            // and NOT the base repo
+            assertEquals("2.0", libraryPlugin.name())
+        } finally {
+            libraryFolder.delete()
+        }
     }
 
     private void addCommit() {
@@ -197,23 +253,6 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     private void addBranch(String branchName) {
         git.checkout().setCreateBranch(true).setName(branchName).call()
-    }
-
-    private AndroidGitVersionExtension makePlugin() {
-        Project project = ProjectBuilder.builder()
-                .withProjectDir(projectFolder.root)
-                .build()
-        project.pluginManager.apply 'com.gladed.androidgitversion'
-        def extension = project.getExtensions().getByName('androidGitVersion')
-        assertTrue(extension instanceof AndroidGitVersionExtension)
-        return (AndroidGitVersionExtension) extension
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        projectFolder.create()
-        projectFolder.newFile("build.gradle")
-//        System.setProperty("user.dir", projectFolder.root.getAbsolutePath())
     }
 
     @Override
