@@ -108,7 +108,7 @@ class AndroidGitVersionExtension {
 
         def versionParts = (!results.lastVersion ? empties : results.lastVersion.
                 split(/[^0-9]+/) + empties).
-                collect{ it as int }[0..2]
+                collect{ it as int }[0..<parts]
 
         return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
     }
