@@ -68,6 +68,11 @@ class AndroidGitVersionExtension {
      */
     List<String> hideBranches = [ "master", "release" ]
 
+    /**
+     * Format of version string.
+     */
+    String format = '%tag%%-count%%-commit%%-branch%%-dirty%'
+
     /** Project referenced by this plugin extension */
     private Project project
     private Results results
@@ -86,15 +91,24 @@ class AndroidGitVersionExtension {
         String name = results.lastVersion
 
         if (name.equals("unknown")) return name
+        name = this.format
 
+        def parts = [tag: results.lastVersion]
         if (results.revCount > 0) {
-            name += "-${results.revCount}-${results.commitPrefix}"
+            parts['count'] = results.revCount
+            parts['commit'] = results.commitPrefix
             if (!hideBranches.contains(results.branchName)) {
-                name += "-" + results.branchName.replaceAll("[^a-zA-Z0-9.-]", "_")
+                parts['branch'] = results.branchName.replaceAll("[^a-zA-Z0-9.-]", "_")
             }
         }
+        if (results.dirty) parts['dirty'] = 'dirty'
 
-        if (results.dirty) name += "-dirty"
+        parts.each { part, value ->
+            name = name.replaceAll(/%([^%]*)$part([^%]*)%/) { all, start, end ->
+                start + value + end
+            }
+        }
+        name = name.replaceAll(/%[^%]+%/,'')
 
         return name
     }

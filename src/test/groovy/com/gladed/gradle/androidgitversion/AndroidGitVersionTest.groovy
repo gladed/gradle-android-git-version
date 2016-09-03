@@ -237,6 +237,33 @@ class AndroidGitVersionTest extends GroovyTestCase {
         }
     }
 
+    void testFormat() {
+        addCommit()
+        addTag("1.0")
+        addBranch("release/1.x")
+        new File(projectFolder.root, "build.gradle").append("// addition 1")
+        addCommit()
+        new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
+
+        plugin.format = '%tag%%!count%%_commit%%.branch%%+dirty%'
+        // Should be something like '1.0!1_10a984.release_1.x+dirty'
+        assert plugin.name().startsWith('1.0!1_')
+        assert plugin.name().endsWith('.release_1.x+dirty')
+    }
+
+    void testCleanFormat() {
+        addCommit()
+        addTag("1.0")
+        addBranch("release/1.x")
+        new File(projectFolder.root, "build.gradle").append("// addition 1")
+        addCommit()
+
+        plugin.format = '%tag%%!count%%(commit)%%.branch%%+dirty%'
+        // Should be something like '1.0!1_10a984.release_1.x'
+        assert plugin.name().startsWith('1.0!1(')
+        assert plugin.name().endsWith(').release_1.x')
+    }
+
     private void addCommit() {
         new File(projectFolder.root, "build.gradle").append("// addition")
         git.add().addFilepattern("build.gradle").call()

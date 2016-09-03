@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.2.13'
+    id 'com.gladed.androidgitversion' version '0.2.18'
 }
 ```
 
@@ -82,6 +82,7 @@ androidGitVersion {
     parts 2
     baseCode 2000
     hideBranches = [ 'develop' ]
+    format = '%tag%%.count%%<commit>%%-branch%%...dirty%'
 }
 ```
 
@@ -128,7 +129,7 @@ Use caution when increasing this value, as the maximum version code is 214748364
 The default number of parts is 3.
 
 ### baseCode (int)
-`baseCode` set a floor for all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
+`baseCode` sets a floor for all generated version codes. Use this when you have already released a version with a code, and don't want to go backwards.
 
 The default baseCode is 0.
 
@@ -136,6 +137,13 @@ The default baseCode is 0.
 `hideBranches` sets the branches which should *not* be mentioned explicitly when building intermediate versions (that is, versions without a tag). This will result in somewhat cleaner intermediate version names.
 
 The default hideBranches are `[ 'master', 'release' ]`, meaning that intermediate builds will not show these branch names.
+
+### format (string)
+`format` defines the form of the version name.
+
+Parts include `tag` (the last tag), `count` (number of commits, if any, since last tag), `commit` (most recent commit prefix, if any, since the last tag), `branch` (branch name, if current branch is not in `hideBranches`), and `dirty` (inserting the word "dirty" if the build was made with uncommitted changes).
+
+Parts are delimited as `%PARTNAME%`. Other characters appearing between % marks are preserved. Parts may be omitted in which case they will not appear in the version name.
 
 ## License
 
