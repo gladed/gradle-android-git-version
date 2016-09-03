@@ -202,7 +202,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag('1.0')
         addBranch('feature')
         addCommit()
-        assert plugin.name() ==~ '1.0-1-[a-e0-9]{7}-feature'
+        assert plugin.name() ==~ '1.0-1-[a-f0-9]{7}-feature'
     }
 
     void testBaseCode() {
