@@ -193,7 +193,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag('1.0')
         addBranch('feature/xyz')
         addCommit()
-        assert plugin.name() ==~ '1.0-1-[a-e0-9]{7}'
+        assert plugin.name() ==~ '1.0-1-[a-f0-9]{7}'
     }
 
     void testHideOnlyFullBranchPattern() {
