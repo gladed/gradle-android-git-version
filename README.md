@@ -8,7 +8,7 @@ A gradle plugin to calculate Android-friendly version names and codes from git t
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.2.18'
+    id 'com.gladed.androidgitversion' version '0.2.19'
 }
 ```
 
@@ -134,9 +134,11 @@ The default number of parts is 3.
 The default baseCode is 0.
 
 ### hideBranches (list of strings)
-`hideBranches` sets the branches which should *not* be mentioned explicitly when building intermediate versions (that is, versions without a tag). This will result in somewhat cleaner intermediate version names.
+`hideBranches` describes which branches which should *not* be mentioned explicitly when building intermediate versions (that is, versions without a tag). This will result in cleaner intermediate version names when the branch name is obvious.
 
 The default hideBranches are `[ 'master', 'release' ]`, meaning that intermediate builds will not show these branch names.
+
+Note that each element of hideBranches is interpreted as a regex, for example, `[ 'master', 'feature/.*' ]`.
 
 ### format (string)
 `format` defines the form of the version name.

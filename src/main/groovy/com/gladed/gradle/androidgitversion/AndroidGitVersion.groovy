@@ -97,8 +97,9 @@ class AndroidGitVersionExtension {
         if (results.revCount > 0) {
             parts['count'] = results.revCount
             parts['commit'] = results.commitPrefix
-            if (!hideBranches.contains(results.branchName)) {
-                parts['branch'] = results.branchName.replaceAll("[^a-zA-Z0-9.-]", "_")
+            String branchName = results.branchName
+            if (!hideBranches.any { branchName ==~ it }) {
+                parts['branch'] = branchName.replaceAll("[^a-zA-Z0-9.-]", "_")
             }
         }
         if (results.dirty) parts['dirty'] = 'dirty'

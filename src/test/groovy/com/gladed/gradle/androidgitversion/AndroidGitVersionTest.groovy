@@ -9,24 +9,28 @@ import org.junit.rules.TemporaryFolder
 
 class AndroidGitVersionTest extends GroovyTestCase {
 
-    @Lazy TemporaryFolder projectFolder = {
+    @Lazy
+    TemporaryFolder projectFolder = {
         TemporaryFolder folder = new TemporaryFolder()
         folder.create()
         folder.newFile("build.gradle")
         return folder
     }()
 
-    @Lazy Project project = {
+    @Lazy
+    Project project = {
         ProjectBuilder.builder()
                 .withProjectDir(projectFolder.root)
                 .build()
     }()
 
-    @Lazy Git git = {
+    @Lazy
+    Git git = {
         return Git.init().setDirectory(projectFolder.root).call();
     }()
 
-    @Lazy AndroidGitVersionExtension plugin = {
+    @Lazy
+    AndroidGitVersionExtension plugin = {
         project.pluginManager.apply 'com.gladed.androidgitversion'
         def extension = project.getExtensions().getByName('androidGitVersion')
         assertTrue(extension instanceof AndroidGitVersionExtension)
@@ -181,6 +185,24 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         assert plugin.name().startsWith("1.0-1-")
         assert plugin.name().endsWith('-release_1.x')
+    }
+
+    void testHideBranchPattern() {
+        plugin.hideBranches = [ 'master', 'feature/.*' ]
+        addCommit()
+        addTag('1.0')
+        addBranch('feature/xyz')
+        addCommit()
+        assert plugin.name() ==~ '1.0-1-[a-e0-9]{7}'
+    }
+
+    void testHideOnlyFullBranchPattern() {
+        plugin.hideBranches = [ 'master', 'feat' ]
+        addCommit()
+        addTag('1.0')
+        addBranch('feature')
+        addCommit()
+        assert plugin.name() ==~ '1.0-1-[a-e0-9]{7}-feature'
     }
 
     void testBaseCode() {
