@@ -1,1 +1,4 @@
+test:
+  override:
+    - ./gradlew --info test
     - cp -r build/reports/tests $CIRCLE_ARTIFACTS/tests
