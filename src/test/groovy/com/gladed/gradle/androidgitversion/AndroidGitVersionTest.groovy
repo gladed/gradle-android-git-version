@@ -301,6 +301,25 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assert plugin.name().endsWith(').release_1.x')
     }
 
+    void testUntrackedIsNotDirty() {
+        addCommit()
+        addTag("1.0")
+        File file = new File(projectFolder.root, "untracked.file");
+        file.append("content");
+        assertFalse("untracked is not dirty", plugin.name().contains("dirty"))
+    }
+
+    void testUntrackedIsDirty() {
+        addCommit()
+        addTag("1.0")
+        plugin.untrackedIsDirty = true
+        File file = new File(projectFolder.root, "untracked.file");
+        file.append("content");
+        assertTrue("untracked is dirty", plugin.name().contains("dirty"))
+    }
+
+    // Utility methods
+
     private void addCommit() {
         new File(projectFolder.root, "build.gradle").append("// addition")
         git.add().addFilepattern("build.gradle").call()

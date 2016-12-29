@@ -69,6 +69,11 @@ class AndroidGitVersionExtension {
     List<String> hideBranches = [ "master", "release" ]
 
     /**
+     * Treat a build as dirty if there are any untracked files
+     */
+    boolean untrackedIsDirty = false
+
+    /**
      * Format of version string.
      */
     String format = '%tag%%-count%%-commit%%-branch%%-dirty%'
@@ -156,7 +161,8 @@ class AndroidGitVersionExtension {
         results.branchName = repo.getBranch()
 
         // Check to see if uncommitted files exist
-        results.dirty = git.status().call().hasUncommittedChanges()
+        results.dirty = git.status().call().hasUncommittedChanges() ||
+                (untrackedIsDirty && !git.status().call().getUntracked().isEmpty())
 
         // Collect known tags
         Iterable<TagInfo> tags = getTagInfos(repo, git)
