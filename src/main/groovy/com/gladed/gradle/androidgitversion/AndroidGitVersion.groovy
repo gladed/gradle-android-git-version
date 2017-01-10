@@ -1,5 +1,6 @@
 package com.gladed.gradle.androidgitversion
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.eclipse.jgit.api.Git
@@ -46,17 +47,16 @@ class AndroidGitVersionExtension {
     String onlyIn = ""
 
     /**
-     * The amount of space allocated for each digit in the version code. For example,
-     * for a multiplier of 1000 (the default), 1.2.3 would result in a version
+     * DEPRECATED (use codeFormat instead): The amount of space allocated for each digit in the
+     * version code. For example, for a multiplier of 1000, 1.2.3 would result in a version
      * code of 1002003
      */
-    int multiplier = 1000
+    Integer multiplier
 
     /**
-     * Number of parts expected in the version number. Defaults to 3 (as in
-     * Semantic Versioning).
+     * DEPRECATED (use codeFormat instead): Number of parts expected in the version number.
      */
-    int parts = 3
+    Integer parts
 
     /**
      * Base code, added to all generated version codes. Defaults to 0
@@ -74,9 +74,23 @@ class AndroidGitVersionExtension {
     boolean untrackedIsDirty = false
 
     /**
-     * Format of version string.
+     * Format of version name string.
      */
     String format = '%tag%%-count%%-commit%%-branch%%-dirty%'
+
+    /**
+     * Format of version code value: AA = API level, SS = Screen size, M+ = Major version (1.x.x),
+     * N+ = Minor version (x.2.x), P+ = Patch version (x.x.3), B+ = Build number (commit count
+     * since last tag).
+     *
+     * Default is "MMMNNNPPP", allocating 3 digits each for Major, Minor, Patch.
+     */
+    String codeFormat;
+
+    enum CodePart {
+        MAJOR, MINOR, PATCH, BUILD
+    }
+    private List<List> codeParts;
 
     /** Project referenced by this plugin extension */
     private Project project
@@ -123,14 +137,16 @@ class AndroidGitVersionExtension {
      * Return a version code corresponding to the most recent version
      */
     final int code() {
+        readCodeFormat();
         if (!results) results = scan();
-        List<String> empties = (1..parts).collect { "0" }
-
-        def versionParts = (!results.lastVersion ? empties : results.lastVersion.
-                split(/[^0-9]+/) + empties).
-                collect{ it as int }[0..<parts]
-
-        return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
+        if (codeParts == null) {
+            def versionParts = results.getVersionParts(parts);
+            return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
+        } else {
+            def r = results;
+            return baseCode +
+                    codeParts.inject(0) { code, part -> r.addCodePart(code, part[0], part[1]) }
+        }
     }
 
     /** Flush results in case git content changed */
@@ -147,7 +163,7 @@ class AndroidGitVersionExtension {
                     .readEnvironment()
                     .findGitDir(project.projectDir)
                     .build()
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignore) {
             // No repo found
             return results
         }
@@ -206,6 +222,46 @@ class AndroidGitVersionExtension {
         results
     }
 
+    private void readCodeFormat() {
+        // Assign a default codeFormat or fall back to deprecated multiplier/parts
+        if (codeFormat == null) {
+            if (multiplier == null && parts == null) {
+                codeFormat = "MMMNNNPPP"; // Default as if parts=3 and mult=1000
+            } else {
+                // If either was specified, apply any missing defaults and proceed
+                if (multiplier == null) multiplier = 1000;
+                if (parts == null) parts = 3;
+                return;
+            }
+        }
+
+        if (parts != null || multiplier != null) {
+            throw new GradleException('cannot use parts/multiplier with codeFormat')
+        }
+
+        // Parse out code parts
+        codeParts = []
+        if (codeFormat.length() > 9) {
+            throw new GradleException("codeFormat " + codeFormat + " is too long "
+                    + " (version codes must be < 2100000000")
+        }
+        for (char ch: codeFormat.toCharArray()) {
+            CodePart part;
+            switch(ch) {
+                case 'M': part = CodePart.MAJOR; break;
+                case 'N': part = CodePart.MINOR; break;
+                case 'P': part = CodePart.PATCH; break;
+                case 'B': part = CodePart.BUILD; break;
+                default: throw new GradleException("Unrecognized char " + ch + " in codeFormat");
+            }
+            if (!codeParts.isEmpty() && codeParts[-1][0] == part) {
+                codeParts[-1][1]++;
+            } else {
+                codeParts.add([part, 1]);
+            }
+        }
+    }
+
     /** Collect all available tag information */
     private List<TagInfo> getTagInfos(Repository repo, Git git) {
         RevWalk walk = new RevWalk(repo)
@@ -223,6 +279,8 @@ class AndroidGitVersionExtension {
 
             if (tag && tag.getName().matches('^' + prefix + '[0-9].*$')) {
                 tag
+            } else {
+                null
             }
         }
         walk.close()
@@ -287,5 +345,28 @@ class AndroidGitVersionExtension {
 
         /** Most recent version seen */
         String lastVersion = 'unknown'
+
+        List getVersionParts(int parts) {
+            List<String> empties = (1..parts).collect { "0" }
+            return (!lastVersion ? empties : lastVersion.
+                    split(/[^0-9]+/) + empties).
+                    collect { it as int }[0..<parts]
+        }
+
+        int addCodePart(int code, CodePart part, int width) {
+            def digits;
+            switch(part) {
+                case CodePart.MAJOR: digits = getVersionParts(3)[0]; break;
+                case CodePart.MINOR: digits = getVersionParts(3)[1]; break;
+                case CodePart.PATCH: digits = getVersionParts(3)[2]; break;
+                case CodePart.BUILD: digits = revCount; break;
+                default: throw new GradleException("Unimplemented part " + part)
+            }
+            if (((int)Math.log10(digits)) + 1 > width) {
+                throw new GradleException("Not enough room for " + digits + " in " + part +
+                        " width=" + width);
+            }
+            return code * Math.pow(10, width) + digits;
+        }
     }
 }
