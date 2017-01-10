@@ -31,7 +31,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }
 
-version = '0.2.22' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
+version = '0.3.0' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
 group = 'com.gladed.gradle.androidgitversion'
 
 pluginBundle {
