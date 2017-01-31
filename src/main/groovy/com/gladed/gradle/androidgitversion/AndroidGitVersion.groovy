@@ -88,7 +88,7 @@ class AndroidGitVersionExtension {
     String codeFormat;
 
     enum CodePart {
-        MAJOR, MINOR, PATCH, BUILD
+        EMPTY, MAJOR, MINOR, PATCH, BUILD
     }
     private List<List> codeParts;
 
@@ -252,6 +252,7 @@ class AndroidGitVersionExtension {
                 case 'N': part = CodePart.MINOR; break;
                 case 'P': part = CodePart.PATCH; break;
                 case 'B': part = CodePart.BUILD; break;
+                case 'X': part = CodePart.EMPTY; break;
                 default: throw new GradleException("Unrecognized char " + ch + " in codeFormat");
             }
             if (!codeParts.isEmpty() && codeParts[-1][0] == part) {
@@ -360,6 +361,7 @@ class AndroidGitVersionExtension {
                 case CodePart.MINOR: digits = getVersionParts(3)[1]; break;
                 case CodePart.PATCH: digits = getVersionParts(3)[2]; break;
                 case CodePart.BUILD: digits = revCount; break;
+                case CodePart.EMPTY: digits = 0; break;
                 default: throw new GradleException("Unimplemented part " + part)
             }
             if (((int)Math.log10(digits)) + 1 > width) {

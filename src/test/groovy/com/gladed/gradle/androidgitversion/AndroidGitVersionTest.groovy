@@ -363,6 +363,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
         plugin.flush()
         assertEquals(1002004, plugin.code())
     }
+
+    void testEmpties() {
+        plugin.codeFormat = "MXNNXPP"
+        addCommit()
+        addTag("1.2.3")
+        assertEquals(1002003, plugin.code())
+    }
+
     // Utility methods
 
     private void addCommit() {

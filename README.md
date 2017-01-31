@@ -12,7 +12,7 @@ can't trace back to code, then this plugin is for you!
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.3.0'
+    id 'com.gladed.androidgitversion' version '0.3.1'
 }
 ```
 
@@ -121,6 +121,7 @@ reserved decimal place in the resulting code:
 - `N` for the Minor version number (x.1.x)
 - `P` for the Patch version number (x.x.1)
 - `B` place for the build number (revisions since last tag)
+- `X` for a blank place filled with 0
 
 Take care; changing the version code scheme for a released Android project can cause problems if
 your new version code does not
