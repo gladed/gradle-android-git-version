@@ -18,6 +18,8 @@ import org.eclipse.jgit.diff.RawTextComparator
 import org.eclipse.jgit.util.io.DisabledOutputStream
 import org.eclipse.jgit.revwalk.RevObject
 
+import com.android.build.OutputFile
+
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
@@ -79,16 +81,20 @@ class AndroidGitVersionExtension {
     String format = '%tag%%-count%%-commit%%-branch%%-dirty%'
 
     /**
-     * Format of version code value: AA = API level, SS = Screen size, M+ = Major version (1.x.x),
-     * N+ = Minor version (x.2.x), P+ = Patch version (x.x.3), B+ = Build number (commit count
-     * since last tag).
-     *
-     * Default is "MMMNNNPPP", allocating 3 digits each for Major, Minor, Patch.
+     * Format for versionCode output. null if user is still using deprecated fields.
      */
-    String codeFormat;
+    String codeFormat
+
+    /**
+     * Map of ABI designators to integers.
+     */
+    def abis = abis = ['armeabi':1, 'armeabi-v7a':2, 'arm64-v8a':3, 'mips':5, 'mips64':6,
+                       'x86':8, 'x86_64':9 ]
+
+    def currentAbi = 0
 
     enum CodePart {
-        EMPTY, MAJOR, MINOR, PATCH, BUILD
+        EMPTY, MAJOR, MINOR, PATCH, BUILD, ABI
     }
     private List<List> codeParts;
 
@@ -137,21 +143,35 @@ class AndroidGitVersionExtension {
      * Return a version code corresponding to the most recent version
      */
     final int code() {
-        readCodeFormat();
-        if (!results) results = scan();
+        readCodeFormat()
+        if (!results) results = scan()
         if (codeParts == null) {
+            // Fallback for case where no codeParts are given
             def versionParts = results.getVersionParts(parts);
             return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
         } else {
-            def r = results;
-            return baseCode +
-                    codeParts.inject(0) { code, part -> r.addCodePart(code, part[0], part[1]) }
+            def r = results // Make available to closure
+            return baseCode + codeParts.inject(0) {
+                code, part -> r.addCodePart(code, part[0], part[1])
+            }
         }
     }
 
     /** Flush results in case git content changed */
     final void flush() {
         results = null
+    }
+
+    /** Update the versionCodeOverride for all variant outputs according to ABI */
+    final void variants(variants) {
+        variants.all { variant ->
+            variant.outputs.each { output ->
+                currentAbi = abis.get(output.getFilter(OutputFile.ABI), 0)
+                output.versionCodeOverride = code()
+                // Don't leave this value dangling, we don't know when this closure will apply
+                currentAbi = 0;
+            }
+        }
     }
 
     private Results scan() {
@@ -236,7 +256,7 @@ class AndroidGitVersionExtension {
         }
 
         if (parts != null || multiplier != null) {
-            throw new GradleException('cannot use parts/multiplier with codeFormat')
+            throw new GradleException('cannot use "parts" or "multiplier" with "codeFormat"')
         }
 
         // Parse out code parts
@@ -252,6 +272,7 @@ class AndroidGitVersionExtension {
                 case 'N': part = CodePart.MINOR; break;
                 case 'P': part = CodePart.PATCH; break;
                 case 'B': part = CodePart.BUILD; break;
+                case 'A': part = CodePart.ABI;  break;
                 case 'X': part = CodePart.EMPTY; break;
                 default: throw new GradleException("Unrecognized char " + ch + " in codeFormat");
             }
@@ -361,6 +382,7 @@ class AndroidGitVersionExtension {
                 case CodePart.MINOR: digits = getVersionParts(3)[1]; break;
                 case CodePart.PATCH: digits = getVersionParts(3)[2]; break;
                 case CodePart.BUILD: digits = revCount; break;
+                case CodePart.ABI: digits = currentAbi; break;
                 case CodePart.EMPTY: digits = 0; break;
                 default: throw new GradleException("Unimplemented part " + part)
             }
