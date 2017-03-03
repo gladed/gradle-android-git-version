@@ -2,7 +2,9 @@ package com.gladed.gradle.androidgitversion
 
 import com.android.build.OutputFile
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -356,6 +358,20 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals(10203, plugin.code())
     }
 
+    void testNearestTag() {
+        addCommit()
+        addTag("1.0-dev")
+        addBranch("release")
+        addCommit()
+        def releaseCommit = addCommit()
+        addTag("1.1-final")
+        checkout("master")
+        addCommit()
+        addCommit()
+        merge(releaseCommit)
+        assertEquals("1.1-final", plugin.name())
+    }
+
     enum AbiType { ONE, TWO, THREE }
 
     class SimOutput {
@@ -420,7 +436,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     // Utility methods
 
-    private void addCommit() {
+    private RevCommit addCommit() {
         new File(projectFolder.root, "build.gradle").append("// addition")
         git.add().addFilepattern("build.gradle").call()
         git.commit().setMessage("addition").call()
@@ -436,6 +452,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     private void addBranch(String branchName) {
         git.checkout().setCreateBranch(true).setName(branchName).call()
+    }
+
+    private void checkout(String branchName) {
+        git.checkout().setName(branchName).call()
+    }
+
+    private void merge(AnyObjectId from) {
+        git.merge().setCommit(true).include(from).call()
     }
 
     @Override
