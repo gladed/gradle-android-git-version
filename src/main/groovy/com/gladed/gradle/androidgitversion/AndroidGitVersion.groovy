@@ -23,15 +23,21 @@ import com.android.build.OutputFile
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
-        project.task('androidGitVersion') << {
-            println "androidGitVersion.name\t${project.extensions.androidGitVersion.name()}"
-            println "androidGitVersion.code\t${project.extensions.androidGitVersion.code()}"
+        project.task('androidGitVersion') {
+            doLast {
+                println "androidGitVersion.name\t${project.extensions.androidGitVersion.name()}"
+                println "androidGitVersion.code\t${project.extensions.androidGitVersion.code()}"
+            }
         }
-        project.task('androidGitVersionName') << {
-            println project.extensions.androidGitVersion.name()
+        project.task('androidGitVersionName') {
+            doLast {
+                println project.extensions.androidGitVersion.name()
+            }
         }
-        project.task('androidGitVersionCode') << {
-            println project.extensions.androidGitVersion.code()
+        project.task('androidGitVersionCode') {
+            doLast {
+                println project.extensions.androidGitVersion.code()
+            }
         }
     }
 }

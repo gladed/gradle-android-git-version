@@ -12,7 +12,7 @@ can't trace back to code, then this plugin is for you!
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.3.3'
+    id 'com.gladed.androidgitversion' version '0.3.4'
 }
 ```
 
