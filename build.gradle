@@ -6,7 +6,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.5'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.7'
     }
 }
 
@@ -14,14 +14,12 @@ apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
-
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile 'org.eclipse.jgit:org.eclipse.jgit:4.1.1.201511131810-r'
+    compile 'org.eclipse.jgit:org.eclipse.jgit:4.8.0.201706111038-r'
     compile 'com.android.tools.build:gradle:2.3.3'
+    testCompile "junit:junit:4.12"
 }
 
 repositories {
