@@ -369,7 +369,17 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addCommit()
         merge(releaseCommit)
+        // This shows we are picking the "wrong" tag when merged, issue #34
         assertEquals("1.1-final", plugin.name())
+    }
+
+    void testLongCommitHash() {
+        addCommit()
+        addTag("1.4")
+        addCommit()
+        addCommit()
+        plugin.format = "%tag%%-count%%-branch%%-dirty%"
+        assertEquals("1.4-2", plugin.name())
     }
 
     enum AbiType { ONE, TWO, THREE }
