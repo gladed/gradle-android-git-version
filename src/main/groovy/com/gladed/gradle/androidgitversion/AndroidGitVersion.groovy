@@ -20,6 +20,8 @@ import org.eclipse.jgit.revwalk.RevObject
 
 import com.android.build.OutputFile
 
+import java.util.regex.Pattern
+
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
@@ -48,6 +50,11 @@ class AndroidGitVersionExtension {
      * multiple external version names.
      */
     String prefix = ""
+
+    /**
+     * Search pattern for tags of interest. Tags not matching this pattern will be ignored.
+     */
+    String tagPattern = ""
 
     /**
      * When set, only includes commits containing changes to the specified path
@@ -102,7 +109,7 @@ class AndroidGitVersionExtension {
     enum CodePart {
         EMPTY, MAJOR, MINOR, PATCH, BUILD, ABI
     }
-    private List<List> codeParts;
+    private List<List> codeParts
 
     /** Project referenced by this plugin extension */
     private Project project
@@ -117,11 +124,11 @@ class AndroidGitVersionExtension {
      * intervening commits if any.
      */
     final String name() {
-        if (!results) results = scan();
+        if (!results) results = scan()
 
         String name = results.lastVersion
 
-        if (name.equals("unknown")) return name
+        if (name == "unknown") return name
         name = this.format
 
         def parts = [tag: results.lastVersion]
@@ -153,8 +160,8 @@ class AndroidGitVersionExtension {
         if (!results) results = scan()
         if (codeParts == null) {
             // Fallback for case where no codeParts are given
-            def versionParts = results.getVersionParts(parts);
-            return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() };
+            def versionParts = results.getVersionParts(parts)
+            return baseCode + versionParts.inject(0) { result, i -> result * multiplier + i.toInteger() }
         } else {
             def r = results // Make available to closure
             return baseCode + codeParts.inject(0) {
@@ -175,7 +182,7 @@ class AndroidGitVersionExtension {
                 currentAbi = abis.get(output.getFilter(OutputFile.ABI), 0)
                 output.versionCodeOverride = code()
                 // Don't leave this value dangling, we don't know when this closure will apply
-                currentAbi = 0;
+                currentAbi = 0
             }
         }
     }
@@ -252,12 +259,12 @@ class AndroidGitVersionExtension {
         // Assign a default codeFormat or fall back to deprecated multiplier/parts
         if (codeFormat == null) {
             if (multiplier == null && parts == null) {
-                codeFormat = "MMMNNNPPP"; // Default as if parts=3 and mult=1000
+                codeFormat = "MMMNNNPPP" // Default as if parts=3 and mult=1000
             } else {
                 // If either was specified, apply any missing defaults and proceed
-                if (multiplier == null) multiplier = 1000;
-                if (parts == null) parts = 3;
-                return;
+                if (multiplier == null) multiplier = 1000
+                if (parts == null) parts = 3
+                return
             }
         }
 
@@ -272,26 +279,27 @@ class AndroidGitVersionExtension {
                     + " (version codes must be < 2100000000")
         }
         for (char ch: codeFormat.toCharArray()) {
-            CodePart part;
+            CodePart part
             switch(ch) {
-                case 'M': part = CodePart.MAJOR; break;
-                case 'N': part = CodePart.MINOR; break;
-                case 'P': part = CodePart.PATCH; break;
-                case 'B': part = CodePart.BUILD; break;
-                case 'A': part = CodePart.ABI;  break;
-                case 'X': part = CodePart.EMPTY; break;
-                default: throw new GradleException("Unrecognized char " + ch + " in codeFormat");
+                case 'M': part = CodePart.MAJOR; break
+                case 'N': part = CodePart.MINOR; break
+                case 'P': part = CodePart.PATCH; break
+                case 'B': part = CodePart.BUILD; break
+                case 'A': part = CodePart.ABI; break
+                case 'X': part = CodePart.EMPTY; break
+                default: throw new GradleException("Unrecognized char " + ch + " in codeFormat")
             }
             if (!codeParts.isEmpty() && codeParts[-1][0] == part) {
-                codeParts[-1][1]++;
+                codeParts[-1][1]++
             } else {
-                codeParts.add([part, 1]);
+                codeParts.add([part, 1])
             }
         }
     }
 
     /** Collect all available tag information */
     private List<TagInfo> getTagInfos(Repository repo, Git git) {
+        String searchPattern = tagPattern.isEmpty() ? /^$prefix[0-9]+.*/ : tagPattern
         RevWalk walk = new RevWalk(repo)
         List<TagInfo> infos = git.tagList().call().findResults { ref ->
             RevObject obj = walk.parseAny(ref.getObjectId())
@@ -305,7 +313,7 @@ class AndroidGitVersionExtension {
                         Repository.shortenRefName(ref.getName()))
             }
 
-            if (tag && tag.getName().matches('^' + prefix + '[0-9].*$')) {
+            if (tag && tag.getName().matches(searchPattern)) {
                 tag
             } else {
                 null
@@ -317,24 +325,24 @@ class AndroidGitVersionExtension {
 
     /** Return true if this commit contains a change to the onlyIn path */
     private boolean containsRelevantChange(Repository repo, RevCommit commit) {
-        if (!onlyIn) return true;
+        if (!onlyIn) return true
 
         if (commit.getParentCount() == 0) {
             TreeWalk tw = new TreeWalk(repo)
-            tw.reset();
+            tw.reset()
             tw.setRecursive(true)
             tw.addTree(commit.getTree())
-            while(tw.next()) {
+            while(++tw) {
                 if (tw.getPathString().startsWith(onlyIn)) return true
             }
         } else {
             RevWalk rw = new RevWalk(repo)
-            RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
-            df.setRepository(repo);
-            df.setDiffComparator(RawTextComparator.DEFAULT);
-            df.setDetectRenames(true);
-            List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
+            RevCommit parent = rw.parseCommit(commit.getParent(0).getId())
+            DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE)
+            df.setRepository(repo)
+            df.setDiffComparator(RawTextComparator.DEFAULT)
+            df.setDetectRenames(true)
+            List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree())
             for (DiffEntry diff : diffs) {
                 if (diff.getOldPath().startsWith(onlyIn) || diff.getNewPath().startsWith(onlyIn)) return true
             }
@@ -378,25 +386,26 @@ class AndroidGitVersionExtension {
             List<String> empties = (1..parts).collect { "0" }
             return (!lastVersion ? empties : lastVersion.
                     split(/[^0-9]+/) + empties).
+                    findAll { !it.isEmpty() }.
                     collect { it as int }[0..<parts]
         }
 
         int addCodePart(int code, CodePart part, int width) {
-            def digits;
+            def digits
             switch(part) {
-                case CodePart.MAJOR: digits = getVersionParts(3)[0]; break;
-                case CodePart.MINOR: digits = getVersionParts(3)[1]; break;
-                case CodePart.PATCH: digits = getVersionParts(3)[2]; break;
-                case CodePart.BUILD: digits = revCount; break;
-                case CodePart.ABI: digits = currentAbi; break;
-                case CodePart.EMPTY: digits = 0; break;
+                case CodePart.MAJOR: digits = getVersionParts(3)[0]; break
+                case CodePart.MINOR: digits = getVersionParts(3)[1]; break
+                case CodePart.PATCH: digits = getVersionParts(3)[2]; break
+                case CodePart.BUILD: digits = revCount; break
+                case CodePart.ABI: digits = currentAbi; break
+                case CodePart.EMPTY: digits = 0; break
                 default: throw new GradleException("Unimplemented part " + part)
             }
             if (((int)Math.log10(digits)) + 1 > width) {
                 throw new GradleException("Not enough room for " + digits + " in " + part +
-                        " width=" + width);
+                        " width=" + width)
             }
-            return code * Math.pow(10, width) + digits;
+            return code * Math.pow(10, width) + digits
         }
     }
 }

@@ -12,7 +12,7 @@ can't trace back to code, then this plugin is for you!
 Add the plugin the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.3.5'
+    id 'com.gladed.androidgitversion' version '0.4.0'
 }
 ```
 
@@ -98,11 +98,12 @@ to your project's `build.gradle` file, before the `android` block. For example:
 androidGitVersion {
     abis = ["armeabi":1, "armeabi-v7a":2 ]
     baseCode 200000
-    codeFormat = 'MNNPPP'
-    format = '%tag%%.count%%<commit>%%-branch%%...dirty%'
+    codeFormat 'MNNPPP'
+    format '%tag%%.count%%<commit>%%-branch%%...dirty%'
     hideBranches = [ 'develop' ]
     onlyIn 'my-library'
     prefix 'lib-'
+    tagPattern /^R[0-9]+.*/
     untrackedIsDirty = false
 }
 
@@ -124,7 +125,7 @@ The default `abis` are:
 version codes). Use this when you have already released a version with a code, and don't want to go
 backwards.
 
-The default `baseCode` is 0.
+The default is `baseCode 0`, enforcing no minimum version code value.
 
 ### codeFormat (string)
 `codeFormat` defines a scheme for building the version code. Each character corresponds to a
@@ -156,18 +157,20 @@ your new version code does not
 Android version codes are limited to a maximum version code of 2100000000. As a result, codeFormat
 only allows you to specify 9 digits.
 
-The default `codeFormat` is `"MMMNNNPPP"`, leaving 3 digits for each portion of the semantic
+The default is `codeFormat 'MMMNNNPPP'`, leaving 3 digits for each portion of the semantic
 version. A shorter code format such as `MNNPPP` is **highly recommended**.
 
-### hideBranches (list of strings)
-`hideBranches` describes which branches which should *not* be mentioned explicitly when building
-intermediate versions (that is, versions without a tag). This will result in cleaner intermediate
-version names when the branch name is obvious.
+### hideBranches (list of strings/regexes)
+`hideBranches` identifies branch names to be hidden from the version name for intermediate (untagged)
+commits.
 
-Note that each element of hideBranches is interpreted as a regex, for example, `[ 'master',
+For example, if 'master' is your development branch, `hideBranches ['master']` results in build
+names like `1.2-38-9effe2a` instead of `1.2-38-master-9effe2a`.
+
+Note that each element of hideBranches is interpreted as a regex pattern, for example, `[ 'master',
 'feature/.*' ]`.
 
-The default hideBranches are `[ 'master', 'release' ]`, meaning that intermediate builds will not
+The default is `hideBranches [ 'master', 'release' ]`, meaning that intermediate builds will not
 show these branch names.
 
 ### format (string)
@@ -186,20 +189,7 @@ Parts are delimited as `%<PARTNAME>%`. Any other characters appearing between % 
 Parts are sometimes omitted (such as a branch name listed by `hideBranches`). In this case the
 entire part will not appear.
 
-The default format is `"%tag%%-count%%-commit%%-branch%%-dirty%"`
-
-### ~~multiplier (int)~~ (deprecated)
-Use `codeFormat` instead.
-
-`multiplier` sets the space allowed each part of the version when calculating the version code.
-
-For example, if you want version 1.2.3 to have a version code of 100020003 (allowing for 9999 patch
-increments), use `multiplier 10000`.
-
-Use caution when increasing this value, as the maximum version code is 2100000000 (the maximum
-integer).
-
-The default multiplier is `1000`.
+The default is `format "%tag%%-count%%-commit%%-branch%%-dirty%"`
 
 ### onlyIn (string)
 `onlyIn` sets a required path for relevant file changes. Commits that change files in this path
@@ -220,7 +210,48 @@ For example, consider this directory tree:
 If `my-app/lib/build.gradle` is configured with `onlyIn 'lib'`, then changes to files in other
 paths (like `my-app/build.gradle` or `my-app/app/src`) will not affect the version name.
 
-The default onlyIn path is `''`, which includes all paths.
+The default is `onlyIn ''`, including all paths.
+
+### prefix (string)
+`prefix` sets the required prefix for any relevant version tag. For example, with `prefix 'lib'`,
+the tag `lib-1.5` is used to determine the version, while tags like `1.0` and `app-2.4.2` are
+ignored. When found, the prefix is removed from the front of the final version name.
+
+The default is `prefix ''`, matching all numeric version tags.
+
+### tagPattern (string/regex)
+
+`tagPattern` limits the search for the most recent version tag to those that match the pattern. For
+example, `tagPattern /^v[0-9]+.*` limits matches to tags like `v1.6`.
+
+If both `prefix` and `tagPattern` are used, the `prefix` strings should be included in the `tagPattern`.
+ 
+The default is `tagPattern /^$prefix[0-9]+.*/`, finding all tags beginning with the prefix (if specified)
+and a digit.
+
+### untrackedIsDirty (boolean)
+When `untrackedIsDirty` is true, a version is considered dirty when any untracked files are
+detected in the repo's directory.
+
+The default is `untrackedIsDirty false`; only tracked files are considered when deciding on "dirty".
+
+## Deprecated Configuration Properties
+
+Deprecated properties are supported but may be dropped in a future release. Transition your project
+to a supported property as soon as possible.
+
+### ~~multiplier (int)~~ (deprecated)
+Use `codeFormat` instead.
+
+`multiplier` sets the space allowed each part of the version when calculating the version code.
+
+For example, if you want version 1.2.3 to have a version code of 100020003 (allowing for 9999 patch
+increments), use `multiplier 10000`.
+
+Use caution when increasing this value, as the maximum version code is 2100000000 (the maximum
+integer).
+
+The default multiplier is `1000`.
 
 ### ~~parts (int)~~ (deprecated)
 Use `codeFormat` instead.
@@ -235,20 +266,7 @@ integer).
 
 The default number of parts is 3.
 
-### prefix (string)
-`prefix` sets the required prefix for any relevant version tag. For example, with `prefix 'lib'`,
-the tag `lib-1.5` is used to determine the version, while tags like `1.0` and `app-2.4.2` are
-ignored.
-
-The default prefix is `''`, which matches all numeric version tags.
-
-### untrackedIsDirty (boolean)
-When `untrackedIsDirty` is true, a version is considered dirty when any untracked files are
-detected in the repo's directory.
-
-The default setting is `false`; only tracked files are considered when deciding on "dirty".
-
 ## License
 
-All code here is Copyright 2015-2016 by Glade Diviney, and licensed under the
+All code here is Copyright 2015-2017 by Glade Diviney, and licensed under the
 [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
