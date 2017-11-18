@@ -20,8 +20,6 @@ import org.eclipse.jgit.revwalk.RevObject
 
 import com.android.build.OutputFile
 
-import java.util.regex.Pattern
-
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
@@ -223,7 +221,7 @@ class AndroidGitVersionExtension {
         Collection<TagInfo> commitTags = null
 
         for (RevCommit commit: revs) {
-            Collection<TagInfo> tagsHere = tags.findAll { it.getObjectId().equals(commit) }
+            def tagsHere = tags.findAll { (it.getObjectId() == commit) }
             if (tagsHere) {
                 commitTags = tagsHere
                 break
@@ -235,24 +233,27 @@ class AndroidGitVersionExtension {
             }
         }
 
-        // No decent tags?
+        // No good tags?
         if (!commitTags) {
             results.lastVersion = "untagged"
             return results
         }
 
-        // Convert tags to names w/o prefixes and get the last one numerically
+        // Convert tags to names w/o prefixes and get the shortest and last one numerically
         results.lastVersion = commitTags.
                 collect { (it.getName() - prefix) }.
-                sort { -it.size() }.
-                sort(false) { a, b ->
-                    [a,b]*.split('[^0-9]+')*.collect { it as int }.with { u, v ->
-                        [u,v].transpose().findResult{ x,y-> x<=>y ?: null } ?: u.size() <=> v.size()
-                    }
+                sort { a, b -> [versionParts(a), versionParts(b)]
+                        .transpose()
+                        .findResult{ x,y-> x<=>y ?: null } ?: b.size() <=> a.size()
                 }.
                 last()
 
         results
+    }
+
+    // Return all numeric parts found anywhere in the string
+    static int[] versionParts(String version) {
+        version.split('[^0-9]+').findAll { it.length() > 0 }.collect { it as int }
     }
 
     private void readCodeFormat() {

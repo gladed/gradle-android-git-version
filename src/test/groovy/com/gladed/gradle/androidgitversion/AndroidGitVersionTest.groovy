@@ -100,22 +100,30 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }
 
     void testMultiTagOnSameCommit2() {
-        addCommit();
-        addTag("2.0.4-beta3");
-        addTag("2.0.5-beta2");
+        addCommit()
+        addTag("2.0.4-beta3")
+        addTag("2.0.5-beta2")
         assertEquals("2.0.5-beta2", plugin.name())
     }
 
     void testMultiTagOnSameCommit3() {
-        addCommit();
-        addTag("2.0.2");
-        addTag("2.0.2-rc");
-        addTag("2.0.2b");
+        addCommit()
+        addTag("2.0.2")
+        addTag("2.0.2-rc")
+        addTag("2.0.2b")
         assertEquals("2.0.2", plugin.name())
     }
 
+    void testMultiTagWithPrefix() {
+        plugin.prefix 'v'
+        addCommit()
+        addTag('v1.0.0-rc.1')
+        addTag('v1.0.0')
+        assertEquals("1.0.0", plugin.name())
+    }
+
     void testCommitsAfterTag() {
-        addCommit();
+        addCommit()
         addTag("1.0")
         addCommit()
         assert plugin.name().startsWith("1.0-1-")
