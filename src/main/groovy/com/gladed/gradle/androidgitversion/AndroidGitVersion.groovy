@@ -314,7 +314,7 @@ class AndroidGitVersionExtension {
                         Repository.shortenRefName(ref.getName()))
             }
 
-            if (tag && tag.getName().matches(searchPattern)) {
+            if (tag && tag.getName().matches(searchPattern) && tag.getName().startsWith(prefix)) {
                 tag
             } else {
                 null
