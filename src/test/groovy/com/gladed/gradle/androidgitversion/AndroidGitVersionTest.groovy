@@ -131,7 +131,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }
 
     void testAddDirty() {
-        addCommit();
+        addCommit()
         addTag("1.0")
         new File(projectFolder.root, "build.gradle").append("// addition")
         assertEquals('1.0-dirty', plugin.name())
@@ -260,10 +260,17 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addTag("1.0")
         addTag("v2.0")
-        // Ignore anything that doesn't start with 1
         plugin.tagPattern = /^v[0-9].*/
         assertEquals("v2.0", plugin.name())
         assertEquals(2000000, plugin.code())
+    }
+
+    void testUnmatchedPrefixedPattern() {
+        addCommit()
+        addTag("1.0")
+        plugin.tagPattern = /^[0-9].*/
+        plugin.prefix = 'v'
+        assert plugin.name().startsWith('untagged-1-')
     }
 
     void testSubmodule() {

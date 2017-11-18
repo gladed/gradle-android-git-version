@@ -213,7 +213,7 @@ paths (like `my-app/build.gradle` or `my-app/app/src`) will not affect the versi
 The default is `onlyIn ''`, including all paths.
 
 ### prefix (string)
-`prefix` sets the required prefix for any relevant version tag. For example, with `prefix 'lib'`,
+`prefix` sets the required prefix for any relevant version tag. For example, with `prefix 'lib-'`,
 the tag `lib-1.5` is used to determine the version, while tags like `1.0` and `app-2.4.2` are
 ignored. When found, the prefix is removed from the front of the final version name.
 
