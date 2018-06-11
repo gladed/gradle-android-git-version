@@ -200,7 +200,7 @@ class AndroidGitVersionExtension {
         }
 
         def git = Git.wrap(repo)
-        def head = repo.getRef(Constants.HEAD).getTarget()
+        def head = repo.findRef(Constants.HEAD).getTarget()
         // No commits?
         if (!head.getObjectId()) return results
 
@@ -333,7 +333,8 @@ class AndroidGitVersionExtension {
             tw.reset()
             tw.setRecursive(true)
             tw.addTree(commit.getTree())
-            while(++tw) {
+            //noinspection ChangeToOperator - ++tw may attempt to assign a boolean to tw
+            while (tw.next()) {
                 if (tw.getPathString().startsWith(onlyIn)) return true
             }
         } else {

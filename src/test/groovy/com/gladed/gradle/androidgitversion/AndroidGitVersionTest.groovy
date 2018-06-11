@@ -106,6 +106,13 @@ class AndroidGitVersionTest extends GroovyTestCase {
         assertEquals("2.0.5-beta2", plugin.name())
     }
 
+    void testLateParts() {
+        addCommit()
+        addTag("1.2-rc3")
+        assertEquals("1.2-rc3", plugin.name())
+        assertEquals(1002003, plugin.code())
+    }
+
     void testMultiTagOnSameCommit3() {
         addCommit()
         addTag("2.0.2")
@@ -139,13 +146,13 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }
 
     void testLightWeightTag() {
-        addCommit();
+        addCommit()
         addLightweightTag("1.0")
         assertEquals('1.0', plugin.name())
     }
 
     void testAddNotDirty() {
-        addCommit();
+        addCommit()
         addTag("1.0")
         File otherFile = new File(projectFolder.root, "build.gradle2")
         otherFile.createNewFile()
@@ -156,8 +163,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     void testOnlyInTagOutside() {
         // Add a tag outside the onlyIn folder
-        addCommit();
-        addTag("1.0");
+        addCommit()
+        addTag("1.0")
 
         // Add a commit inside the onlyIn folder
         File subDir = new File(projectFolder.root, "sub")
@@ -170,6 +177,13 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
         plugin.onlyIn = "sub"
         assert plugin.name().startsWith("1.0-1-")
+    }
+
+    void testNothingInOnlyIn() {
+        addCommit()
+        File subDir = new File(projectFolder.root, "sub")
+        plugin.onlyIn = "sub"
+        assert plugin.name().startsWith("untagged")
     }
 
     void testOnlyInChangeOutside() {
@@ -267,8 +281,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
     void testUnmatchedPrefixedPattern() {
         addCommit()
-        addTag("1.0")
-        plugin.tagPattern = /^[0-9].*/
+        addTag("v1.0")
+        plugin.tagPattern = /^v2\\.*/
         plugin.prefix = 'v'
         assert plugin.name().startsWith('untagged-1-')
     }
