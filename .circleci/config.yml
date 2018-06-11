@@ -1,6 +1,8 @@
 version: 2
 jobs:
   build:
+    environment:
+        TERM: dumb
     docker:
       # Because it has gradle
       - image: circleci/android:api-28-node8-alpha
@@ -10,5 +12,7 @@ jobs:
           name: Build and test
           command: ./gradlew --info test
       - store_artifacts:
-          path: build/reports/tests
-          destination: tests
+          path: build/reports/tests/test
+          destination: test
+      - store_test_results:
+          path: build/test-results
