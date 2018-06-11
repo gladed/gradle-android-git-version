@@ -27,7 +27,6 @@ class AndroidGitVersionTest extends GroovyTestCase {
                 .build()
     }()
 
-    @Lazy
     Git git = {
         return Git.init().setDirectory(projectFolder.root).call();
     }()
@@ -46,7 +45,6 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }
 
     void testNoCommits() {
-        git // touch to build
         assertEquals('unknown', plugin.name())
         assertEquals(0, plugin.code())
     }
