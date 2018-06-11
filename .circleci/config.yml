@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    environment:
+        TERM: dumb
+    docker:
+      # Because it has gradle
+      - image: circleci/android:api-28-node8-alpha
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - cache-{{ checksum "build.gradle" }}
+      - run:
+          name: Build and test
+          command: ./gradlew --info test
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: cache-{{ checksum "build.gradle" }}
+      - store_artifacts:
+          path: build/reports/tests/test
+          destination: test
+      - store_test_results:
+          path: build/test-results

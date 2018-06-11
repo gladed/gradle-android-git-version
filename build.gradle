@@ -17,6 +17,9 @@ apply plugin: 'maven'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
+version = '0.4.4' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
+group = 'com.gladed.gradle.androidgitversion'
+
 dependencies {
     compile gradleApi()
     compile localGroovy()
@@ -33,8 +36,12 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }
 
-version = '0.4.4' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
-group = 'com.gladed.gradle.androidgitversion'
+test {
+    reports {
+        junitXml.enabled = true
+        html.enabled = true
+    }
+}
 
 pluginBundle {
     website = 'https://github.com/gladed/gradle-android-git-version'
