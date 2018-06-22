@@ -272,7 +272,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addTag("1.0")
         addTag("v2.0")
-        plugin.tagPattern = /^v[0-9].*/
+        plugin.tagPattern = /^v[0-9]+.*/
         assertEquals("v2.0", plugin.name())
         assertEquals(2000000, plugin.code())
     }
