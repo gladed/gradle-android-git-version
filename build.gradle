@@ -6,7 +6,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.10'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.10.0'
     }
 }
 
@@ -17,19 +17,20 @@ apply plugin: 'maven'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = '0.4.6' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
+version = '0.4.7' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
 group = 'com.gladed.gradle.androidgitversion'
+
+repositories {
+    google()
+    jcenter()
+}
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile 'org.eclipse.jgit:org.eclipse.jgit:5.0.3.201809091024-r'
-    compile 'com.android.tools.build:gradle:2.3.0'
+    compile 'org.eclipse.jgit:org.eclipse.jgit:5.2.0.201812061821-r'
+    compile 'com.android.tools.build:gradle:3.2.1'
     testCompile "junit:junit:4.12"
-}
-
-repositories {
-    jcenter()
 }
 
 task wrapper(type: Wrapper) {
