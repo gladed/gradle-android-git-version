@@ -8,15 +8,43 @@ tired of manually updating your Android build files for each release, or generat
 can't trace back to code, then this plugin is for you!
 
 ## Installation and Use
-
-Add the plugin the top of your `app/build.gradle` (or equivalent):
+### Add the plugin
+#### Using plugins DSL
+Add `plugins` block to the top of your `app/build.gradle` (or equivalent):
 ```groovy
 plugins {
     id 'com.gladed.androidgitversion' version '0.4.7'
 }
 ```
 
-Set `versionName` and `versionCode` from plugin results:
+and `google()` maven repository for dependency at the beginning of `settings.gradle` file
+```grovy
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+}
+```
+#### Legacy method (apply plugin)
+Add `buildscript` block to the top of your `app/build.gradle` (or equivalent):
+```grovy
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.gladed.gradle.androidgitversion:gradle-android-git-version:0.4.7"
+    }
+}
+```
+then apply plugin with
+```groovy
+apply plugin: "com.gladed.androidgitversion"
+```
+added later into `app/build.gradle`.
+### Set `versionName` and `versionCode` from plugin results:
 ```groovy
 android {
     // ...
@@ -26,7 +54,7 @@ android {
         versionCode androidGitVersion.code()
 ```
 
-Use a git tag to specify your version number (see [Semantic Versioning](http://semver.org))
+### Use a git tag to specify your version number (see [Semantic Versioning](http://semver.org))
 ```bash
 $ git tag 1.2.3
 $ gradle --quiet androidGitVersion
