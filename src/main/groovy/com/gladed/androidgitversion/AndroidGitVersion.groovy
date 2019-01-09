@@ -1,24 +1,22 @@
-package com.gladed.gradle.androidgitversion
+package com.gladed.androidgitversion
 
-import org.gradle.api.GradleException
-import org.gradle.api.Project
-import org.gradle.api.Plugin
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Repository
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevTag
-import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.treewalk.TreeWalk
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.RawTextComparator
-import org.eclipse.jgit.util.io.DisabledOutputStream
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevObject
-
-import com.android.build.OutputFile
+import org.eclipse.jgit.revwalk.RevTag
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.eclipse.jgit.treewalk.TreeWalk
+import org.eclipse.jgit.util.io.DisabledOutputStream
+import org.gradle.api.GradleException
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
@@ -177,7 +175,7 @@ class AndroidGitVersionExtension {
     final void variants(variants) {
         variants.all { variant ->
             variant.outputs.each { output ->
-                currentAbi = abis.get(output.getFilter(OutputFile.ABI), 0)
+                currentAbi = abis.get(output.getFilter("ABI"), 0)
                 output.versionCodeOverride = code()
                 // Don't leave this value dangling, we don't know when this closure will apply
                 currentAbi = 0

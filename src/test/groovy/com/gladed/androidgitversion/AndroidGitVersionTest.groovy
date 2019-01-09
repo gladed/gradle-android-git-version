@@ -1,6 +1,5 @@
-package com.gladed.gradle.androidgitversion
+package com.gladed.androidgitversion
 
-import com.android.build.OutputFile
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.Repository
@@ -40,33 +39,33 @@ class AndroidGitVersionTest extends GroovyTestCase {
     }()
 
     void testNoGitRepo() {
-        assertEquals('unknown', plugin.name())
-        assertEquals(0, plugin.code())
+        GroovyTestCase.assertEquals('unknown', plugin.name())
+        GroovyTestCase.assertEquals(0, plugin.code())
     }
 
     void testNoCommits() {
-        assertEquals('unknown', plugin.name())
-        assertEquals(0, plugin.code())
+        GroovyTestCase.assertEquals('unknown', plugin.name())
+        GroovyTestCase.assertEquals(0, plugin.code())
     }
 
     void testNoTags() {
         addCommit()
         assert plugin.name().startsWith('untagged-1-')
         assertFalse plugin.name().contains("master") // Due to hideBranches
-        assertEquals(0, plugin.code())
+        GroovyTestCase.assertEquals(0, plugin.code())
     }
 
     void testTag() {
         addCommit()
         addTag('1.0')
-        assertEquals('1.0', plugin.name())
+        GroovyTestCase.assertEquals('1.0', plugin.name())
    }
 
     void testNonVersionTag() {
         addCommit()
         addTag('checkpoint-1')
         assert plugin.name().startsWith('untagged-1-')
-        assertEquals(0, plugin.code())
+        GroovyTestCase.assertEquals(0, plugin.code())
     }
 
     void testTagPrefix() {
@@ -74,8 +73,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("lib-1.0")
         plugin.prefix = "lib-"
         plugin.tagPattern = /^${plugin.prefix}[0-9]+(\\.[0-9]+){0,2}.*/
-        assertEquals('1.0', plugin.name())
-        assertEquals(1000000, plugin.code())
+        GroovyTestCase.assertEquals('1.0', plugin.name())
+        GroovyTestCase.assertEquals(1000000, plugin.code())
     }
 
     void testMultiTag() {
@@ -83,8 +82,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.0")
         addCommit()
         addTag("1.1")
-        assertEquals('1.1', plugin.name())
-        assertEquals(1001000, plugin.code())
+        GroovyTestCase.assertEquals('1.1', plugin.name())
+        GroovyTestCase.assertEquals(1001000, plugin.code())
     }
 
     void testMultiTagOnSameCommit() {
@@ -93,22 +92,22 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.7")
         addTag("1.90")
         addTag("1.8")
-        assertEquals('1.90', plugin.name())
-        assertEquals(1090000, plugin.code())
+        GroovyTestCase.assertEquals('1.90', plugin.name())
+        GroovyTestCase.assertEquals(1090000, plugin.code())
     }
 
     void testMultiTagOnSameCommit2() {
         addCommit()
         addTag("2.0.4-beta3")
         addTag("2.0.5-beta2")
-        assertEquals("2.0.5-beta2", plugin.name())
+        GroovyTestCase.assertEquals("2.0.5-beta2", plugin.name())
     }
 
     void testLateParts() {
         addCommit()
         addTag("1.2-rc3")
-        assertEquals("1.2-rc3", plugin.name())
-        assertEquals(1002003, plugin.code())
+        GroovyTestCase.assertEquals("1.2-rc3", plugin.name())
+        GroovyTestCase.assertEquals(1002003, plugin.code())
     }
 
     void testMultiTagOnSameCommit3() {
@@ -116,7 +115,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("2.0.2")
         addTag("2.0.2-rc")
         addTag("2.0.2b")
-        assertEquals("2.0.2", plugin.name())
+        GroovyTestCase.assertEquals("2.0.2", plugin.name())
     }
 
     void testMultiTagWithPrefix() {
@@ -124,7 +123,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addTag('v1.0.0-rc.1')
         addTag('v1.0.0')
-        assertEquals("1.0.0", plugin.name())
+        GroovyTestCase.assertEquals("1.0.0", plugin.name())
     }
 
     void testCommitsAfterTag() {
@@ -132,21 +131,21 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.0")
         addCommit()
         assert plugin.name().startsWith("1.0-1-")
-        assertEquals(1000000, plugin.code())
+        GroovyTestCase.assertEquals(1000000, plugin.code())
     }
 
     void testAddDirty() {
         addCommit()
         addTag("1.0")
         new File(projectFolder.root, "build.gradle").append("// addition")
-        assertEquals('1.0-dirty', plugin.name())
-        assertEquals(1000000, plugin.code())
+        GroovyTestCase.assertEquals('1.0-dirty', plugin.name())
+        GroovyTestCase.assertEquals(1000000, plugin.code())
     }
 
     void testLightWeightTag() {
         addCommit()
         addLightweightTag("1.0")
-        assertEquals('1.0', plugin.name())
+        GroovyTestCase.assertEquals('1.0', plugin.name())
     }
 
     void testAddNotDirty() {
@@ -155,8 +154,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         File otherFile = new File(projectFolder.root, "build.gradle2")
         otherFile.createNewFile()
         otherFile.append("// addition")
-        assertEquals('1.0', plugin.name())
-        assertEquals(1000000, plugin.code())
+        GroovyTestCase.assertEquals('1.0', plugin.name())
+        GroovyTestCase.assertEquals(1000000, plugin.code())
     }
 
     void testOnlyInTagOutside() {
@@ -198,7 +197,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
 
         plugin.onlyIn = "sub"
-        assertEquals('1.0', plugin.name())
+        GroovyTestCase.assertEquals('1.0', plugin.name())
     }
 
     void testWeirdBranchName() {
@@ -241,21 +240,21 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addTag("1.1")
         plugin.baseCode = 55555
-        assertEquals(1056555, plugin.code())
+        GroovyTestCase.assertEquals(1056555, plugin.code())
     }
 
     void testFourPartCode() {
         addCommit()
         addTag("1.2.3.4")
         plugin.parts = 4
-        assertEquals(1002003004, plugin.code())
+        GroovyTestCase.assertEquals(1002003004, plugin.code())
     }
 
     void testTagWithSuffix() {
         addCommit()
         addTag("1.1-release")
-        assertEquals(1001000, plugin.code())
-        assertEquals("1.1-release", plugin.name())
+        GroovyTestCase.assertEquals(1001000, plugin.code())
+        GroovyTestCase.assertEquals("1.1-release", plugin.name())
     }
 
     void testTagPattern() {
@@ -264,8 +263,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("2.0")
         // Ignore anything that doesn't start with 1
         plugin.tagPattern = /^1\..*/
-        assertEquals("1.0", plugin.name())
-        assertEquals(1000000, plugin.code())
+        GroovyTestCase.assertEquals("1.0", plugin.name())
+        GroovyTestCase.assertEquals(1000000, plugin.code())
     }
 
     void testTagVPattern() {
@@ -273,8 +272,8 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("1.0")
         addTag("v2.0")
         plugin.tagPattern = /^v[0-9]+.*/
-        assertEquals("v2.0", plugin.name())
-        assertEquals(2000000, plugin.code())
+        GroovyTestCase.assertEquals("v2.0", plugin.name())
+        GroovyTestCase.assertEquals(2000000, plugin.code())
     }
 
     void testUnmatchedPrefixedPattern() {
@@ -289,7 +288,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         // Set up a base repo
         addCommit()
         addTag("1.0")
-        assertEquals("1.0", plugin.name())
+        GroovyTestCase.assertEquals("1.0", plugin.name())
 
         TemporaryFolder libraryFolder = new TemporaryFolder()
         libraryFolder.create()
@@ -319,7 +318,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
 
             // Make sure the subproject gets its version number from the library repo
             // and NOT the base repo
-            assertEquals("2.0", libraryPlugin.name())
+            GroovyTestCase.assertEquals("2.0", libraryPlugin.name())
         } finally {
             libraryFolder.delete()
         }
@@ -373,14 +372,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addTag("1.2")
         plugin.codeFormat = "MMNNPPP"
-        assertEquals(102000, plugin.code())
+        GroovyTestCase.assertEquals(102000, plugin.code())
     }
 
     void testMajorMinorPatchBuild() {
         addCommit()
         addTag("1.2")
         plugin.codeFormat = "MMNNPPBBB"
-        assertEquals(10200000, plugin.code())
+        GroovyTestCase.assertEquals(10200000, plugin.code())
     }
 
     void testMajorMinorPatchBuildNonZero() {
@@ -388,7 +387,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addTag("42.88.33")
         addCommit()
         plugin.codeFormat = "MMNNPPBBB"
-        assertEquals(428833001, plugin.code())
+        GroovyTestCase.assertEquals(428833001, plugin.code())
     }
 
     void testCodeFormatBaseCode() {
@@ -396,14 +395,14 @@ class AndroidGitVersionTest extends GroovyTestCase {
         plugin.baseCode = 200000
         addCommit()
         addTag("1.2.3")
-        assertEquals(210203, plugin.code())
+        GroovyTestCase.assertEquals(210203, plugin.code())
     }
 
     void testCodeFormatExtraParts() {
         plugin.codeFormat = "MNNPP"
         addCommit()
         addTag("1.2.3.4.5.6")
-        assertEquals(10203, plugin.code())
+        GroovyTestCase.assertEquals(10203, plugin.code())
     }
 
     void testNearestTag() {
@@ -418,7 +417,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         merge(releaseCommit)
         // This shows we are picking the "wrong" tag when merged, issue #34
-        assertEquals("1.1-final", plugin.name())
+        GroovyTestCase.assertEquals("1.1-final", plugin.name())
     }
 
     void testLongCommitHash() {
@@ -427,7 +426,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         addCommit()
         addCommit()
         plugin.format = "%tag%%-count%%-branch%%-dirty%"
-        assertEquals("1.4-2", plugin.name())
+        GroovyTestCase.assertEquals("1.4-2", plugin.name())
     }
 
     enum AbiType { ONE, TWO, THREE }
@@ -436,7 +435,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         int versionCodeOverride = 0
         AbiType abi
         AbiType getFilter(f) {
-            if (f == OutputFile.ABI) return abi
+            if (f == "ABI") return abi
             return null
         }
     }
@@ -470,7 +469,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         ])
 
         plugin.variants(simVariants)
-        assertEquals(10203, plugin.code())
+        GroovyTestCase.assertEquals(10203, plugin.code())
         assertEquals(10203, simVariants.variants[0].outputs[0].versionCodeOverride)
         assertEquals(210203, simVariants.variants[1].outputs[0].versionCodeOverride)
         assertEquals(310203, simVariants.variants[1].outputs[1].versionCodeOverride)
@@ -479,17 +478,17 @@ class AndroidGitVersionTest extends GroovyTestCase {
     void testFlush() {
         addCommit()
         addTag("1.2.3")
-        assertEquals(1002003, plugin.code())
+        GroovyTestCase.assertEquals(1002003, plugin.code())
         addTag("1.2.4")
         plugin.flush()
-        assertEquals(1002004, plugin.code())
+        GroovyTestCase.assertEquals(1002004, plugin.code())
     }
 
     void testEmpties() {
         plugin.codeFormat = "MXNNXPP"
         addCommit()
         addTag("1.2.3")
-        assertEquals(1002003, plugin.code())
+        GroovyTestCase.assertEquals(1002003, plugin.code())
     }
 
     // Utility methods

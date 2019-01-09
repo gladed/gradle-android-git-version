@@ -1,9 +1,8 @@
 // Apply the publishing plugin
 buildscript {
     repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2'
-        }
+        jcenter()
+        gradlePluginPortal()
     }
     dependencies {
         classpath 'com.gradle.publish:plugin-publish-plugin:0.10.0'
@@ -12,16 +11,17 @@ buildscript {
 
 apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'groovy'
+apply plugin: 'java-gradle-plugin'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = '0.4.7' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
-group = 'com.gladed.gradle.androidgitversion'
+version = '0.4.9' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
+group = 'com.gladed.androidgitversion'
 
 repositories {
-    google()
     jcenter()
 }
 
@@ -29,7 +29,6 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile 'org.eclipse.jgit:org.eclipse.jgit:5.2.0.201812061821-r'
-    compile 'com.android.tools.build:gradle:3.2.1'
     testCompile "junit:junit:4.12"
 }
 
@@ -44,6 +43,27 @@ test {
     }
 }
 
+gradlePlugin {
+    plugins {
+        androidGitVersion {
+            id = project.group
+            implementationClass = 'com.gladed.androidgitversion.AndroidGitVersion'
+        }
+    }
+}
+
+// For local publishing only
+publishing {
+    publications {
+        pluginPublication (MavenPublication) {
+            from components.java
+            groupId project.group
+            artifactId project.name
+            version project.version
+        }
+    }
+}
+
 pluginBundle {
     website = 'https://github.com/gladed/gradle-android-git-version'
     vcsUrl = 'https://github.com/gladed/gradle-android-git-version'
@@ -51,7 +71,6 @@ pluginBundle {
     tags = [ 'android', 'git', 'version' ]
     plugins {
         androidGitVersion {
-            id = 'com.gladed.androidgitversion'
             displayName = 'Android Git Version plugin'
         }
     }
