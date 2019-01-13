@@ -1,6 +1,5 @@
-package com.gladed.gradle.androidgitversion
+package com.gladed.androidgitversion
 
-import com.android.build.OutputFile
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.Repository
@@ -436,7 +435,7 @@ class AndroidGitVersionTest extends GroovyTestCase {
         int versionCodeOverride = 0
         AbiType abi
         AbiType getFilter(f) {
-            if (f == OutputFile.ABI) return abi
+            if (f == "ABI") return abi
             return null
         }
     }
