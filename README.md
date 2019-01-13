@@ -13,7 +13,7 @@ Add `plugins` block to the top of your `app/build.gradle` (or equivalent):
 
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.4.8'
+    id 'com.gladed.androidgitversion' version '0.4.9'
 }
 ```
 
@@ -99,7 +99,7 @@ androidGitVersion {
     hideBranches = [ 'develop' ]
     onlyIn 'my-library'
     prefix 'lib-'
-    tagPattern /^R[0-9]+.*/
+    tagPattern(/^R[0-9]+.*/)
     untrackedIsDirty = false
 }
 
@@ -198,12 +198,11 @@ The default is `onlyIn ''`, including all paths.
 The default is `prefix ''`, matching all numeric version tags.
 
 ### tagPattern (string/regex)
-
-`tagPattern` limits the search for the most recent version tag to those that match the pattern. For example, `tagPattern /^v[0-9]+.*` limits matches to tags like `v1.6`.
+`tagPattern` limits the search for the most recent version tag to those that match the pattern. For example, `tagPattern(/^v[0-9]+.*)` limits matches to tags like `v1.6`.
 
 If both `prefix` and `tagPattern` are used, the `prefix` strings should be included in the `tagPattern`.
  
-The default is `tagPattern /^$prefix[0-9]+.*/`, finding all tags beginning with the prefix (if specified) and a digit.
+The default is `tagPattern(/^$prefix[0-9]+.*/)`, finding all tags beginning with the prefix (if specified) and a digit.
 
 ### untrackedIsDirty (boolean)
 When `untrackedIsDirty` is true, a version is considered dirty when any untracked files are detected in the repo's directory.
