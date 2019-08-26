@@ -28,7 +28,7 @@ repositories {
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile 'org.eclipse.jgit:org.eclipse.jgit:5.2.0.201812061821-r'
+    compile 'org.eclipse.jgit:org.eclipse.jgit:5.4.2.201908231537-r'
     testCompile "junit:junit:4.12"
 }
 
