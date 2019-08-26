@@ -18,7 +18,7 @@ apply plugin: 'maven-publish'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-version = '0.4.9' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
+version = '0.4.10' // <-----UPDATE THIS VERSION NUMBER MANUALLY FOR EACH RELEASE
 group = 'com.gladed.androidgitversion'
 
 repositories {

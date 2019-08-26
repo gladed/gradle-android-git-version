@@ -13,7 +13,7 @@ Add `plugins` block to the top of your `app/build.gradle` (or equivalent):
 
 ```groovy
 plugins {
-    id 'com.gladed.androidgitversion' version '0.4.9'
+    id 'com.gladed.androidgitversion' version '0.4.10'
 }
 ```
 
