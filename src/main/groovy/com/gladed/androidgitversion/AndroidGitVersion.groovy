@@ -103,7 +103,7 @@ class AndroidGitVersionExtension {
     def currentAbi = 0
 
     enum CodePart {
-        EMPTY, MAJOR, MINOR, PATCH, BUILD, ABI
+        EMPTY, MAJOR, MINOR, PATCH, REVISION, BUILD, ABI
     }
     private List<List> codeParts
 
@@ -286,6 +286,7 @@ class AndroidGitVersionExtension {
                 case 'B': part = CodePart.BUILD; break
                 case 'A': part = CodePart.ABI; break
                 case 'X': part = CodePart.EMPTY; break
+                case 'R': part = CodePart.REVISION; break
                 default: throw new GradleException("Unrecognized char " + ch + " in codeFormat")
             }
             if (!codeParts.isEmpty() && codeParts[-1][0] == part) {
@@ -390,12 +391,17 @@ class AndroidGitVersionExtension {
                     collect { it as int }[0..<parts]
         }
 
+        int getVersionPart(int index) {
+            return getVersionParts(index + 1)[index]
+        }
+
         int addCodePart(int code, CodePart part, int width) {
             def digits
             switch(part) {
-                case CodePart.MAJOR: digits = getVersionParts(3)[0]; break
-                case CodePart.MINOR: digits = getVersionParts(3)[1]; break
-                case CodePart.PATCH: digits = getVersionParts(3)[2]; break
+                case CodePart.MAJOR: digits = getVersionPart(0); break
+                case CodePart.MINOR: digits = getVersionPart(1); break
+                case CodePart.PATCH: digits = getVersionPart(2); break
+                case CodePart.REVISION: digits = getVersionPart(3); break
                 case CodePart.BUILD: digits = revCount; break
                 case CodePart.ABI: digits = currentAbi; break
                 case CodePart.EMPTY: digits = 0; break

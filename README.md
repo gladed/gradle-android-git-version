@@ -137,6 +137,7 @@ The default is `baseCode 0`, enforcing no minimum version code value.
 - `M` for the Major version number (1.x.x)
 - `N` for the Minor version number (x.1.x)
 - `P` for the Patch version number (x.x.1)
+- `R` for the Revision number (e.g. x.x.x-rc1)
 - `B` for the build number (revisions since last tag)
 - `A` for the ABI platform code [1]
 - `X` for a blank place filled with 0
