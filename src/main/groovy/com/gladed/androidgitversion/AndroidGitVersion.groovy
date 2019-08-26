@@ -62,11 +62,13 @@ class AndroidGitVersionExtension {
      * version code. For example, for a multiplier of 1000, 1.2.3 would result in a version
      * code of 1002003
      */
+    @Deprecated
     Integer multiplier
 
     /**
      * DEPRECATED (use codeFormat instead): Number of parts expected in the version number.
      */
+    @Deprecated
     Integer parts
 
     /**
