@@ -86,15 +86,17 @@ You can customize the scheme used to generate version codes with `codeFormat` (s
 
 `androidGitVersionCode` prints only the code.
 
-## Use on CI Servers
+## Usage Notes
 
-To save on bandwidth, CI servers may default to a "shallow" clone of your repo having no revision history, or may omit the pulling of tags. This hides the commit history and will prevent this plugin from accurately identifying the name or version code. This will result in an error not seen on your local build machine:
+* To save on bandwidth, CI servers may default to a "shallow" clone of your repo having no revision history, or may omit the pulling of tags. This hides the commit history and will prevent this plugin from accurately identifying the name or version code. This will result in an error not seen on your local build machine:
 
-```
-Building app with versionName [untagged_814fca9-812f...9b8], versionCode [0]
-```
+    ```
+    Building app with versionName [untagged_814fca9-812f...9b8], versionCode [0]
+    ```
 
-To address this, configure your CI project to pull enough history (e.g. `git fetch --depth=100 --tags`) to reach recent commits and tags of interest.
+    To address this, configure your CI project to pull enough history (e.g. `git fetch --depth=100 --tags`) to reach recent commits and tags of interest.
+
+* `git worktree` is not supported.
 
 ## Configuration Properties
 
