@@ -1,5 +1,7 @@
 package com.gladed.androidgitversion
 
+import org.eclipse.jgit.lib.ObjectId
+
 class FormatTest extends AndroidGitVersionTest {
     void testFormat() {
         addCommit()
@@ -35,5 +37,14 @@ class FormatTest extends AndroidGitVersionTest {
         addCommit()
         plugin.format = "%tag%%-count%%-branch%%-dirty%"
         assertEquals("1.4-2", plugin.name())
+    }
+
+    void testHashLength() {
+        plugin.commitHashLength = 8
+        addCommit()
+        addTag("1.0")
+        ObjectId commitId = addCommit().toObjectId();
+        String hash = ObjectId.toString(commitId)
+        assert plugin.name().contains(hash[0..7])
     }
 }

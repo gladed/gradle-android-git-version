@@ -77,6 +77,11 @@ class AndroidGitVersionExtension {
     int baseCode = 0
 
     /**
+     * The number of characters to take from the front of a commit hash.
+     */
+    int commitHashLength = 7
+
+    /**
      * Branches that should NOT be shown even if on an untagged commit
      */
     List<String> hideBranches = [ "master", "release" ]
@@ -85,6 +90,11 @@ class AndroidGitVersionExtension {
      * Treat a build as dirty if there are any untracked files
      */
     boolean untrackedIsDirty = false
+
+    /**
+     * Use remote branch name to determine current branch.
+     */
+    boolean remoteBranchNames = false
 
     /**
      * Format of version name string.
@@ -186,6 +196,7 @@ class AndroidGitVersionExtension {
     }
 
     private Results scan() {
+        validateSettings()
         Results results = new Results()
 
         Repository repo
@@ -204,7 +215,7 @@ class AndroidGitVersionExtension {
         // No commits?
         if (!head.getObjectId()) return results
 
-        results.commitPrefix = ObjectId.toString(head.getObjectId())[0..6]
+        results.commitPrefix = ObjectId.toString(head.getObjectId())[0..(commitHashLength - 1)]
         results.branchName = repo.getBranch()
 
         // Check to see if uncommitted files exist
@@ -254,6 +265,12 @@ class AndroidGitVersionExtension {
     // Return all numeric parts found anywhere in the string
     static int[] versionParts(String version) {
         version.split('[^0-9]+').findAll { it.length() > 0 }.collect { it as int }
+    }
+
+    private void validateSettings() {
+        if (commitHashLength < 4 || commitHashLength > 40) {
+            throw new GradleException("commitHashLength of $commitHashLength must be in the range of 4..20")
+        }
     }
 
     private void readCodeFormat() {

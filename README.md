@@ -107,6 +107,7 @@ androidGitVersion {
     abis = ["armeabi":1, "armeabi-v7a":2 ]
     baseCode 200000
     codeFormat 'MNNPPP'
+    commitHashLength = 8
     format '%tag%%.count%%<commit>%%-branch%%...dirty%'
     hideBranches = [ 'develop' ]
     onlyIn 'my-library'
@@ -116,10 +117,10 @@ androidGitVersion {
 }
 
 android {
-    ...
+    // ...
 }
-
 ```
+
 ### abis (map of String:int)
 `abis` indicate how [ABI platforms](https://developer.android.com/ndk/guides/abis.html)
 are mapped to integer codes. These integer codes are inserted into the `A` place in `codeFormat`.
@@ -160,6 +161,11 @@ Note that changing the version code scheme for a released Android project can ca
 Android version codes are limited to a maximum version code of 2100000000. As a result, codeFormat only allows you to specify 9 digits.
 
 The default is `codeFormat 'MMMNNNPPP'`, leaving 3 digits for each portion of the semantic version. A shorter code format such as `MNNPPP` is **highly recommended**.
+
+### commitHashLength (int)
+`commitHashLength` specifies how many characters to use from the beginning of commit SHA hash (e.g. `commit` in `format`). Values from 4 to 40 are valid.
+
+The default length is 7 (similar to `git describe --tags`).
 
 ### hideBranches (list of strings/regexes)
 `hideBranches` identifies branch names to be hidden from the version name for intermediate (untagged) commits.
