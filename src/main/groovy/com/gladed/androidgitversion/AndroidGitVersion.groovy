@@ -92,11 +92,6 @@ class AndroidGitVersionExtension {
     boolean untrackedIsDirty = false
 
     /**
-     * Use remote branch name to determine current branch.
-     */
-    boolean remoteBranchNames = false
-
-    /**
      * Format of version name string.
      */
     String format = '%tag%%-count%%-commit%%-branch%%-dirty%'
