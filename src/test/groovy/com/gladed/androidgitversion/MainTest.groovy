@@ -161,6 +161,19 @@ class MainTest extends AndroidGitVersionTest {
         assertTrue("untracked is dirty", plugin.name().contains("dirty"))
     }
 
+    void testMatchGitDescribeOffByDefault() {
+        addCommit()
+        addTag("1.0.0")
+        def currentCommit = addCommit()
+        def currentHash = ObjectId.toString(currentCommit.toObjectId())
+        def shortHash = currentHash.substring(0, 7)
+        def expectedVersionName = "1.0.0-1-" + shortHash
+        def versionName = plugin.name()
+        assert versionName.startsWith("1.0.0-1-")
+        assert versionName.endsWith(shortHash)
+        assertEquals (expectedVersionName, versionName)
+    }
+
     void testMatchGitDescribeUsesCorrectCommit() {
         plugin.matchGitDescribe = true
         addCommit()
