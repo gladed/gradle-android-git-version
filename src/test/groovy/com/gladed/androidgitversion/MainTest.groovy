@@ -1,6 +1,7 @@
 package com.gladed.androidgitversion
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -158,6 +159,20 @@ class MainTest extends AndroidGitVersionTest {
         File file = new File(projectFolder.root, "untracked.file");
         file.append("content");
         assertTrue("untracked is dirty", plugin.name().contains("dirty"))
+    }
+
+    void testMatchGitDescribeUsesCorrectCommit() {
+        plugin.matchGitDescribe = true
+        addCommit()
+        addTag("1.0.0")
+        def currentCommit = addCommit()
+        def currentHash = ObjectId.toString(currentCommit.toObjectId())
+        def shortHash = currentHash.substring(0, 7)
+        def expectedVersionName = "1.0.0-1-g" + shortHash
+        def versionName = plugin.name()
+        assert versionName.startsWith("1.0.0-1-g")
+        assert versionName.endsWith(shortHash)
+        assertEquals (expectedVersionName, versionName)
     }
 
     void testFlush() {
