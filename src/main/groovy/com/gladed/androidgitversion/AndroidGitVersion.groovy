@@ -42,6 +42,11 @@ class AndroidGitVersion implements Plugin<Project> {
 
 class AndroidGitVersionExtension {
     /**
+    * Option to make versionName match the expected output for those using `git describe`
+    */
+    boolean matchGitDescribe = false
+
+    /**
      * Prefix used to specify special text before the tag. Useful in projects which manage
      * multiple external version names.
      */
@@ -130,6 +135,10 @@ class AndroidGitVersionExtension {
         if (!results) results = scan()
 
         String name = results.lastVersion
+
+        if (matchGitDescribe) {
+            return name
+        }
 
         if (name == "unknown") return name
         name = this.format
@@ -253,6 +262,10 @@ class AndroidGitVersionExtension {
                         .findResult{ x,y-> x<=>y ?: null } ?: b.size() <=> a.size()
                 }.
                 last()
+
+        if (matchGitDescribe) {
+            results.lastVersion = git.describe().call()
+        }
 
         results
     }
