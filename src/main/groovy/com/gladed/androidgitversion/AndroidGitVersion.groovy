@@ -132,6 +132,10 @@ class AndroidGitVersionExtension {
      * intervening commits if any.
      */
     final String name() {
+        if (matchGitDescribe) {
+            this.format = this.format.replace("%tag%%-count%%-commit%", "%describe%")
+        }
+
         if (!results) results = scan()
 
         String name = results.lastVersion
