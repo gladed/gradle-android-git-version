@@ -30,6 +30,40 @@ class FormatTest extends AndroidGitVersionTest {
         assert plugin.name().endsWith(').release_1.x')
     }
 
+    void testBranchNameOnGitDescribe() {
+        plugin.matchGitDescribe = true
+        addCommit()
+        addTag("1.0")
+        addBranch("feature-foo")
+        new File(projectFolder.root, "build.gradle").append("// addition 1")
+        addCommit()
+
+        assert plugin.name().startsWith('1.0-1-g')
+        assert plugin.name().endsWith('-feature-foo')
+    }
+
+    void testDirtyOnGitDescribe() {
+        plugin.matchGitDescribe = true
+        addCommit()
+        addTag("1.0")
+        new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
+
+        assert plugin.name().equals("1.0-dirty")
+    }
+
+    void testDirtyBranchOnGitDescribe() {
+        this.plugin.matchGitDescribe = true
+        addCommit()
+        addTag("1.0")
+        addBranch("release/1.x")
+        new File(projectFolder.root, "build.gradle").append("// addition 1")
+        addCommit()
+        new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
+
+        assert plugin.name().startsWith('1.0-1-g')
+        assert plugin.name().endsWith('release_1.x-dirty')
+    }
+
     void testLongCommitHash() {
         addCommit()
         addTag("1.4")
