@@ -140,6 +140,10 @@ class AndroidGitVersionExtension {
         if (name == "unknown") return name
         name = this.format
 
+        if (results.outputOfGitDescribe != null) {
+            name = name.replace("%describe%", results.outputOfGitDescribe)
+        }
+
         def parts = [tag: results.lastVersion]
         if (results.revCount > 0) {
             parts['count'] = results.revCount
