@@ -260,9 +260,7 @@ class AndroidGitVersionExtension {
                 }.
                 last()
 
-        if (matchGitDescribe && this.format.contains("%tag%%-count%%-commit%")) {
-            this.format = this.format.replace("%tag%%-count%%-commit%", git.describe().call())
-        }
+        results.outputOfGitDescribe = git.describe().call()
 
         results
     }
