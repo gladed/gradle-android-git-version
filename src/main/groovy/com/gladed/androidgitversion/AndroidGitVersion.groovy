@@ -136,9 +136,6 @@ class AndroidGitVersionExtension {
 
         String name = results.lastVersion
 
-        if (matchGitDescribe) {
-            return name
-        }
 
         if (name == "unknown") return name
         name = this.format
@@ -263,8 +260,8 @@ class AndroidGitVersionExtension {
                 }.
                 last()
 
-        if (matchGitDescribe) {
-            results.lastVersion = git.describe().call()
+        if (matchGitDescribe && this.format.contains("%tag%%-count%%-commit%")) {
+            this.format = this.format.replace("%tag%%-count%%-commit%", git.describe().call())
         }
 
         results
