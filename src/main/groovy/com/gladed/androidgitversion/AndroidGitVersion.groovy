@@ -407,6 +407,9 @@ class AndroidGitVersionExtension {
         /** Most recent version seen */
         String lastVersion = 'unknown'
 
+        /** The resulting output from calling git describe */
+        String outputOfGitDescribe = null
+
         List getVersionParts(int parts) {
             List<String> empties = (1..parts).collect { "0" }
             return (!lastVersion ? empties : lastVersion.
