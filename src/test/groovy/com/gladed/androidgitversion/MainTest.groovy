@@ -181,6 +181,8 @@ class MainTest extends AndroidGitVersionTest {
         def currentHash = ObjectId.toString(currentCommit.toObjectId())
         def shortHash = currentHash.substring(0, 7)
         def expectedVersionName = "1.0.0-1-g" + shortHash
+        plugin.format = "%describe%%-branch%%-dirty%"
+
         def versionName = plugin.name()
         assert versionName.startsWith("1.0.0-1-g")
         assert versionName.endsWith(shortHash)

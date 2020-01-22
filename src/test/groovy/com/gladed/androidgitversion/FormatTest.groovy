@@ -36,6 +36,7 @@ class FormatTest extends AndroidGitVersionTest {
         addBranch("feature-foo")
         new File(projectFolder.root, "build.gradle").append("// addition 1")
         addCommit()
+        plugin.format = "%describe%%-branch%%-dirty%"
 
         assert plugin.name().startsWith('1.0-1-g')
         assert plugin.name().endsWith('-feature-foo')
@@ -45,6 +46,7 @@ class FormatTest extends AndroidGitVersionTest {
         addCommit()
         addTag("1.0")
         new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
+        plugin.format = "%describe%%-branch%%-dirty%"
 
         assert plugin.name().equals("1.0-dirty")
     }
@@ -56,6 +58,7 @@ class FormatTest extends AndroidGitVersionTest {
         new File(projectFolder.root, "build.gradle").append("// addition 1")
         addCommit()
         new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
+        plugin.format = "%describe%%-branch%%-dirty%"
 
         assert plugin.name().startsWith('1.0-1-g')
         assert plugin.name().endsWith('release_1.x-dirty')
