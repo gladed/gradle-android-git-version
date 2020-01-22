@@ -41,10 +41,6 @@ class AndroidGitVersion implements Plugin<Project> {
 }
 
 class AndroidGitVersionExtension {
-    /**
-    * Option to make versionName match the expected output for those using `git describe`
-    */
-    boolean matchGitDescribe = false
 
     /**
      * Prefix used to specify special text before the tag. Useful in projects which manage
@@ -132,9 +128,6 @@ class AndroidGitVersionExtension {
      * intervening commits if any.
      */
     final String name() {
-        if (matchGitDescribe) {
-            this.format = this.format.replace("%tag%%-count%%-commit%", "%describe%")
-        }
 
         if (!results) results = scan()
 
