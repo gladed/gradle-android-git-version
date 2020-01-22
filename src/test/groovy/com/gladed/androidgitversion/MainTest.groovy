@@ -175,7 +175,6 @@ class MainTest extends AndroidGitVersionTest {
     }
 
     void testMatchGitDescribeUsesCorrectCommit() {
-        plugin.matchGitDescribe = true
         addCommit()
         addTag("1.0.0")
         def currentCommit = addCommit()

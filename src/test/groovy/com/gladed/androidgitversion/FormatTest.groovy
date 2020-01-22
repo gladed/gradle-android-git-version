@@ -31,7 +31,6 @@ class FormatTest extends AndroidGitVersionTest {
     }
 
     void testBranchNameOnGitDescribe() {
-        plugin.matchGitDescribe = true
         addCommit()
         addTag("1.0")
         addBranch("feature-foo")
@@ -43,7 +42,6 @@ class FormatTest extends AndroidGitVersionTest {
     }
 
     void testDirtyOnGitDescribe() {
-        plugin.matchGitDescribe = true
         addCommit()
         addTag("1.0")
         new File(projectFolder.root, "build.gradle").append("// addition 2") // Dirty
@@ -52,7 +50,6 @@ class FormatTest extends AndroidGitVersionTest {
     }
 
     void testDirtyBranchOnGitDescribe() {
-        this.plugin.matchGitDescribe = true
         addCommit()
         addTag("1.0")
         addBranch("release/1.x")
