@@ -231,7 +231,7 @@ The default is `untrackedIsDirty false`; only tracked files are considered when 
 
 ## Deprecated Configuration Properties
 
-See DEPRECATED.md
+See [DEPRECATED.md](DEPRECATED.md).
 
 ## License
 
