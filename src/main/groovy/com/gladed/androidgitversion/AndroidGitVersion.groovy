@@ -134,6 +134,8 @@ class AndroidGitVersionExtension {
         if (name == "unknown") return name
         name = this.format
 
+        name = name.replace("%describe%", results.gitDescribeOutput)
+
         def parts = [tag: results.lastVersion]
         if (results.revCount > 0) {
             parts['count'] = results.revCount
@@ -254,6 +256,10 @@ class AndroidGitVersionExtension {
                 }.
                 last()
 
+        String gitDescribeOutput = git.describe().setTags(true).call()
+        if (gitDescribeOutput != null) {
+            results.gitDescribeOutput = gitDescribeOutput
+        }
         results
     }
 
@@ -396,6 +402,9 @@ class AndroidGitVersionExtension {
 
         /** Most recent version seen */
         String lastVersion = 'unknown'
+
+        /** The resulting output from calling git describe */
+        String gitDescribeOutput = 'unknown'
 
         List getVersionParts(int parts) {
             List<String> empties = (1..parts).collect { "0" }

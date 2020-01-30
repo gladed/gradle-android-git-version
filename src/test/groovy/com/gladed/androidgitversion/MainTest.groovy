@@ -143,7 +143,7 @@ class MainTest extends AndroidGitVersionTest {
         }
     }
 
-    void testUntrackedIsNotDirty() {
+    void testUntrackedFileIsNotDirty() {
         addCommit()
         addTag("1.0")
         File file = new File(projectFolder.root, "untracked.file");
@@ -151,7 +151,7 @@ class MainTest extends AndroidGitVersionTest {
         assertFalse("untracked is not dirty", plugin.name().contains("dirty"))
     }
 
-    void testUntrackedIsDirty() {
+    void testUntrackedFileIsDirty() {
         addCommit()
         addTag("1.0")
         plugin.untrackedIsDirty = true
@@ -168,5 +168,4 @@ class MainTest extends AndroidGitVersionTest {
         plugin.flush()
         assertEquals(1002004, plugin.code())
     }
-
 }
