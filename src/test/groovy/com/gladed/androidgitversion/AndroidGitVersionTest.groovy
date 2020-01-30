@@ -37,8 +37,12 @@ abstract class AndroidGitVersionTest extends GroovyTestCase {
         return (AndroidGitVersionExtension) extension
     }()
 
-    RevCommit addCommit() {
+    void makeChange() {
         new File(projectFolder.root, "build.gradle").append("// addition")
+    }
+
+    RevCommit addCommit() {
+        makeChange()
         git.add().addFilepattern("build.gradle").call()
         git.commit().setMessage("addition").call()
     }

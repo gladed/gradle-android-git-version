@@ -1,7 +1,6 @@
 package com.gladed.androidgitversion
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -144,7 +143,7 @@ class MainTest extends AndroidGitVersionTest {
         }
     }
 
-    void testUntrackedIsNotDirty() {
+    void testUntrackedFileIsNotDirty() {
         addCommit()
         addTag("1.0")
         File file = new File(projectFolder.root, "untracked.file");
@@ -152,41 +151,13 @@ class MainTest extends AndroidGitVersionTest {
         assertFalse("untracked is not dirty", plugin.name().contains("dirty"))
     }
 
-    void testUntrackedIsDirty() {
+    void testUntrackedFileIsDirty() {
         addCommit()
         addTag("1.0")
         plugin.untrackedIsDirty = true
         File file = new File(projectFolder.root, "untracked.file");
         file.append("content");
         assertTrue("untracked is dirty", plugin.name().contains("dirty"))
-    }
-
-    void testMatchGitDescribeOffByDefault() {
-        addCommit()
-        addTag("1.0.0")
-        def currentCommit = addCommit()
-        def currentHash = ObjectId.toString(currentCommit.toObjectId())
-        def shortHash = currentHash.substring(0, 7)
-        def expectedVersionName = "1.0.0-1-" + shortHash
-        def versionName = plugin.name()
-        assert versionName.startsWith("1.0.0-1-")
-        assert versionName.endsWith(shortHash)
-        assertEquals (expectedVersionName, versionName)
-    }
-
-    void testMatchGitDescribeUsesCorrectCommit() {
-        addCommit()
-        addTag("1.0.0")
-        def currentCommit = addCommit()
-        def currentHash = ObjectId.toString(currentCommit.toObjectId())
-        def shortHash = currentHash.substring(0, 7)
-        def expectedVersionName = "1.0.0-1-g" + shortHash
-        plugin.format = "%describe%%-branch%%-dirty%"
-
-        def versionName = plugin.name()
-        assert versionName.startsWith("1.0.0-1-g")
-        assert versionName.endsWith(shortHash)
-        assertEquals (expectedVersionName, versionName)
     }
 
     void testFlush() {
@@ -197,5 +168,4 @@ class MainTest extends AndroidGitVersionTest {
         plugin.flush()
         assertEquals(1002004, plugin.code())
     }
-
 }
