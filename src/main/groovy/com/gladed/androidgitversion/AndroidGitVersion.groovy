@@ -134,9 +134,7 @@ class AndroidGitVersionExtension {
         if (name == "unknown") return name
         name = this.format
 
-        name = name.replace("%describe%", results.gitDescribeOutput)
-
-        def parts = [tag: results.lastVersion]
+        def parts = [tag: results.lastVersion, describe: results.gitDescribeOutput]
         if (results.revCount > 0) {
             parts['count'] = results.revCount
             parts['commit'] = results.commitPrefix
