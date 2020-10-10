@@ -22,17 +22,23 @@ class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("androidGitVersion", AndroidGitVersionExtension, project)
         project.task('androidGitVersion') {
+            group = 'androidGitVersion'
+            description = 'Task for generate both values [versionCode, versionName]'
             doLast {
                 println "androidGitVersion.name\t${project.extensions.androidGitVersion.name()}"
                 println "androidGitVersion.code\t${project.extensions.androidGitVersion.code()}"
             }
         }
         project.task('androidGitVersionName') {
+            group = 'androidGitVersion'
+            description = 'Task for generate the [versionName] of your project'
             doLast {
                 println project.extensions.androidGitVersion.name()
             }
         }
         project.task('androidGitVersionCode') {
+            group = 'androidGitVersion'
+            description = 'Task for generate the [versionCode] of your project'
             doLast {
                 println project.extensions.androidGitVersion.code()
             }
