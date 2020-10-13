@@ -233,6 +233,10 @@ The default is `untrackedIsDirty false`; only tracked files are considered when 
 
 See [DEPRECATED.md](DEPRECATED.md).
 
+## Version History
+
+See [HISTORY.md](HISTORY.md).
+
 ## License
 
 All code here is Copyright 2015-2019 by Glade Diviney, and licensed under the [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0).
