@@ -172,15 +172,15 @@ class MainTest extends AndroidGitVersionTest {
     void testTaskNames() {
         plugin // Touch the plugin so it's loaded
         def androidGitVersion = project.getTasksByName("androidGitVersion", true).first()
-        assertEquals("Build", androidGitVersion.group)
+        assertEquals("Android", androidGitVersion.group)
         assertEquals("Print version name and version code", androidGitVersion.description)
 
         def androidGitVersionName = project.getTasksByName("androidGitVersionName", true).first()
-        assertEquals("Build", androidGitVersionName.group)
+        assertEquals("Android", androidGitVersionName.group)
         assertEquals("Print version name", androidGitVersionName.description)
 
         def androidGitVersionCode = project.getTasksByName("androidGitVersionCode", true).first()
-        assertEquals("Build", androidGitVersionCode.group)
+        assertEquals("Android", androidGitVersionCode.group)
         assertEquals("Print version code", androidGitVersionCode.description)
     }
 }
