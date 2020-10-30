@@ -26,7 +26,7 @@ abstract class AndroidGitVersionTest extends GroovyTestCase {
     }()
 
     Git git = {
-        return Git.init().setDirectory(projectFolder.root).call();
+        return Git.init().setDirectory(projectFolder.root).call()
     }()
 
     @Lazy

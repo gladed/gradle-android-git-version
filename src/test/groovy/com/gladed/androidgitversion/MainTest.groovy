@@ -102,7 +102,6 @@ class MainTest extends AndroidGitVersionTest {
         assertEquals(1056555, plugin.code())
     }
 
-
     void testSubmodule() {
         // Set up a base repo
         addCommit()
@@ -121,17 +120,18 @@ class MainTest extends AndroidGitVersionTest {
             libraryGit.tag().setName("2.0").call()
 
             // Add the library repo to the base repo as a submodule
-            Repository libraryRepo = git.submoduleAdd()
+            git.submoduleAdd()
                     .setPath("library")
                     .setURI(libraryGit.getRepository().getDirectory().getCanonicalPath())
                     .call()
-            libraryRepo.close()
+                    .close()
 
             // Add the submodule as a subproject to the base project
             Project libraryProject = ProjectBuilder.builder()
                     .withProjectDir(new File(projectFolder.root, "library"))
                     .withParent(project)
                     .build()
+
             libraryProject.pluginManager.apply 'com.gladed.androidgitversion'
             AndroidGitVersionExtension libraryPlugin = (AndroidGitVersionExtension) libraryProject.getExtensions().getByName('androidGitVersion')
 

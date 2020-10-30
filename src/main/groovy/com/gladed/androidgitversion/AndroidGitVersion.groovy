@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.diff.RawTextComparator
+import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
@@ -17,6 +18,7 @@ import org.eclipse.jgit.util.io.DisabledOutputStream
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.slf4j.LoggerFactory
 
 class AndroidGitVersion implements Plugin<Project> {
     void apply(Project project) {
@@ -200,8 +202,9 @@ class AndroidGitVersionExtension {
                     .readEnvironment()
                     .findGitDir(project.projectDir)
                     .build()
-        } catch (IllegalArgumentException ignore) {
-            // No repo found
+        } catch (IllegalArgumentException | RepositoryNotFoundException ignore) {
+            def logger = LoggerFactory.getLogger("androidGitVersion")
+            logger.warn("No git repository reachable from ${project.projectDir}")
             return results
         }
 
